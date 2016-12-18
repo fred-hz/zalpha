@@ -114,6 +114,7 @@ class DataManagerBase(object):
 
 
 class DataManagerCacheable(DataManagerBase, Serializable):
+
     """
     Interface to be impelemented by data manager subclass.
     The interface is used when data are derived from raw data and stored in cache file.
@@ -163,4 +164,3 @@ class DataManagerCacheable(DataManagerBase, Serializable):
 
     def _load(self, data_name):
         setattr(self, data_name, pickle.load(os.path.join(self.cache_path, data_name)))
-

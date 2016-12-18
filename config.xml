@@ -53,6 +53,7 @@
 		<!-- Portfolio Modules -->
 		<Module id="Portfolio" class="portfolio.alpha_op_portfolio.AlphaPortfolio" />
 
+
 	</Modules>
 
 	<Portfolio moduleId="Portfolio" id="zalpha" booksize="20e6" homecurrency="CNY" combinationId="AlphaComboSample" doCombo="False">
