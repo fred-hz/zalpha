@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<zalpha>
+	
+	<Macros DATAROOT="~/data" RAWDATA="${DATAROOT}/rawData" CACHE="${DATAROOT}/cache"
+			LOCAL="~/PycharmProjects/zalpha"/>
+
+	<!-- backdays? checkPointDays? -->
+	<Constants backdays="256" checkPointDays="5"/>
+
+	<!-- Basic environment needed to be loaded into context. Only one environment can be loaded.
+		 Mainly to load ticker-index mapping and date-index mapping.
+	 	 class: Python class to analyze environment data.
+	 	 dataPath: Path of raw data to be loaded as environment. Needed to be cached before used.
+	 	 cachePath: Path of cached (dumped) data to be loaded as environment. If cache exists,
+	 	 dataPath will be useless.
+	 -->
+	<Enviroment id="envStandard" class="environment.env_standard.Environment" dataPath="" cachePath="" startDate="20060101" endDate="0"/>
+
+	<!-- All the modules to be combined together -->
+	<Modules>
+		<!-- Universe Modules, which return the top-highest-liquidity stocks which can be traded
+		under the filter conditions.
+		universe: Number of stocks selected
+		windowDays: Number of days from which the top average trading-amount stocks are selected
+		minAmount: Minimal trading amount (Filter condition)
+		minPrice: Minimal price (Filter condition)
+		maxPrice: Maximal price (Filter condition)
+		minCap: Minimal capital (Filter condition)
+		postIPO: Number of days after which stocks can be traded after IPO (Filter condition)
+		minLive: Number of days the stock has been traded in a row (Filter condition)
+		-->
+		<Module id="TOP500" class="data_manager.dm_universe.DataManagerUniverse" cachePath="${CACHE}/universe/TOP500" dataPath=""
+				universe="500" windowDays="63" minPrice="1." maxPrice="1000." minAmount="0." minCap="0." minLive="40"
+				handler="handler.handler_universe.HandlerUniverse"/>
+
+		<!-- Data Modules -->
+		<Module id="basedata" class="data_manager.dm_basedata.DataManagerBaseData" cachePath="${CACHE}/basedata/bin" dataPath=""/>
+		<Module id="wind.financeindex" class="data_manager.dm_windfinance.DataManagerWindFinance" cachePath="${CACHE}/wind/bin" dataPath=""/>
+		<Module id="adjPrice" class="data_manager.dm_adjprice.DataManagerAdjPrice"/>
+
+		<!-- Alpha Modules -->
+		<Module id="AlphaSample" class="myalpha.alpha_sample.AlphaSample"/>
+
+		<!-- Operation Modules -->
+		<Module id="AlphaOpTruncate" class="operation.alpha_op_truncate.AlphaOpTruncate"/>
+		<Module id="AlphaOpDecay" class="operation.alpha_op_decay.AlphaOpDecay"/>
+		<Module id="AlphaOpIndNeut" class="operation.alpha_op_indneut.AlphaOpIndNeut"/>
+		<Module id="AlphaOpPower" class="operation.alpha_op_power.AlphaOpPower"/>
+
+		<Module id="StatsSample" class="" />
+		<Module id="AlphaComboSample" class="" />
+
+		<!-- Portfolio Modules -->
+		<Module id="Portfolio" class="portfolio.alpha_op_portfolio.AlphaPortfolio" />
+
+	</Modules>
+
+	<Portfolio moduleId="Portfolio" id="zalpha" booksize="20e6" homecurrency="CNY" combinationId="AlphaComboSample" doCombo="False">
+		<Stats moduleId="StatsSample" tax="0." fee="0."/>
+		<!-- delay? method? ndays? -->
+		<Alpha moduleId="AlphaSample" id="hzalpha" universeId="TOP500" booksize="20e6" delay="1" method="1" ndays="5">
+			<Description name="hzalpha" author="hz" birthday="20161018" category="price_volume" delay="1"/>
+			<Operations>
+				<Operation moduleId="AlphaOpPower" exp="3.0"/>
+				<Operation moduleId="AlphaOpDecay" days="10"/>
+				<Operation moduleId="AlphaOpTruncate" maxPercent="0.1"/>
+				<Operation moduleId="AlphaOpIndNeut" group="industry"/>
+			</Operations>
+		</Alpha>
+	</Portfolio>
+
+</zalpha>
