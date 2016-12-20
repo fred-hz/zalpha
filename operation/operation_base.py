@@ -3,6 +3,7 @@ from abc import (
     abstractmethod
 )
 
+
 class OperationBase(object):
     __metaclass__ = ABCMeta
 
