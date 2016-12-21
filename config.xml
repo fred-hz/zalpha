@@ -46,16 +46,26 @@
 		<Module id="AlphaOpIndNeut" class="operation.alpha_op_indneut.AlphaOpIndNeut"/>
 		<Module id="AlphaOpPower" class="operation.alpha_op_power.AlphaOpPower"/>
 
-		<Module id="StatsSample" class="" />
-
-		<!-- Portfolio Modules -->
-		<Module id="Portfolio" class="portfolio.alpha_op_portfolio.AlphaPortfolio" />
-
+		<!-- Performance Modules -->
+		<Module id="Performance" class="performance.performance.Performance" />
 	</Modules>
 
+	<!-- delay? method? ndays? -->
+	<AlphaTest id="zalpha" delay="1" method="1" ndays="5">
+		<Universe moduleId="TOP500"/>
+		<Alpha moduleId="AlphaSample" />
+		<Operations>
+			<Operation moduleId="AlphaOpPower" exp="3.0"/>
+			<Operation moduleId="AlphaOpDecay" days="10"/>
+			<Operation moduleId="AlphaOpTruncate" maxPercent="0.1"/>
+			<Operation moduleId="AlphaOpIndNeut" group="industry"/>
+		</Operations>
+		<Performance moduleId="Performance" longmode="" shortmode="" longcapital="" shortcapital="" tax="0." fee="0."/>
+	</AlphaTest>
+
+	<!--
 	<Portfolio moduleId="Portfolio" id="zalpha" booksize="20e6" homecurrency="CNY" combinationId="AlphaComboSample" doCombo="False">
 		<Stats moduleId="StatsSample" tax="0." fee="0."/>
-		<!-- delay? method? ndays? -->
 		<Alpha moduleId="AlphaSample" id="hzalpha" universeId="TOP500" booksize="20e6" delay="1" method="1" ndays="5">
 			<Description name="hzalpha" author="hz" birthday="20161018" category="price_volume" delay="1"/>
 			<Operations>
@@ -66,5 +76,6 @@
 			</Operations>
 		</Alpha>
 	</Portfolio>
+	-->
 
 </zalpha>

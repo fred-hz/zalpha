@@ -89,18 +89,18 @@ class Performance(object):
             raise Exception
 
         if self.short_mode in alpha_based_mapping.keys():
-            short_stats = alpha_based_mapping[self.long_mode](alpha=alpha,
-                                                              di=di,
-                                                              is_long=False,
-                                                              capital=self.short_capital,
-                                                              price=self.ticker_price,
-                                                              history_position=self.alpha_positions,
-                                                              start_di=self.start_di)
+            short_stats = alpha_based_mapping[self.short_mode](alpha=alpha,
+                                                               di=di,
+                                                               is_long=False,
+                                                               capital=self.short_capital,
+                                                               price=self.ticker_price,
+                                                               history_position=self.alpha_positions,
+                                                               start_di=self.start_di)
         elif self.short_mode in index_based_mapping.keys():
-            short_stats = index_based_mapping[self.long_mode](di=di,
-                                                              is_long=False,
-                                                              capital=self.short_capital,
-                                                              price=Context.data_container[self.long_mode])
+            short_stats = index_based_mapping[self.short_mode](di=di,
+                                                               is_long=False,
+                                                               capital=self.short_capital,
+                                                               price=Context.data_container[self.long_mode])
         else:
             raise Exception
 
