@@ -19,6 +19,14 @@ class Serializable(object):
             ))
         self.serialize_list.append(name)
 
+    def cache_exist(self, cache_path):
+        if len(self.serialize_list) == 0:
+            return False
+        for name in self.serialize_list:
+            if not os.path.exists(os.path.join(cache_path, name)):
+                return False
+        return True
+
     def dump(self, cache_path):
         for name in self.serialize_list:
             var = getattr(self, name)
