@@ -23,7 +23,8 @@ class EnvStandard(Serializable):
         :param context: sim_engine.context.Context
         :return:
         """
-        pass
+        context.di_list = self.di_list
+        context.ii_list = self.ii_list
 
     def compute(self):
         pass

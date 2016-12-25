@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET
 from sim_engine.module_factory import ModuleFactory
-
+from sim_engine.context import Context
 
 class Engine(object):
     def __init__(self, config_path):
@@ -9,6 +9,8 @@ class Engine(object):
         self.xml_structure = {}
 
         self.module_factory = ModuleFactory()
+
+        self.context = Context()
 
     def parse_config(self):
         tree = ET.parse(self.config_path)
@@ -42,6 +44,17 @@ class Engine(object):
             mid = module_para['id']
             self.module_factory.register_module(mid, module_para)
 
+    def parse_environment(self):
+        environment_paras = self.xml_structure['Environment']
+        class_name = environment_paras['class']
+        names = class_name.spilt('.')
+        python_module_path = '.'.join(names[0:-1])
+        python_module = __import__(python_module_path)
+        module_class = getattr(python_module, names[-1])
+
+        environment = module_class(paras=environment_paras)
+        environment.load_data()
+        environment.register_context(self.context)
 
 if __name__ == '__main__':
     engine = Engine('/Users/Onlyrabbit/PycharmProjects/zalpha/config.xml')

@@ -1,16 +1,14 @@
-from data_manager.dm_basedata import DataManagerBaseData
-
+from sim_engine.engine import Engine
 
 class Sim(object):
 
     def __init__(self):
-        pass
+        self.engine = Engine()
 
     def run(self):
-        data_path = ''
-        mid = ''
-        dmgr_base_data = DataManagerBaseData(mid, data_path)
-        dmgr_base_data.compute()
+        self.engine.parse_config()
+        self.engine.parse_environment()
+        self.engine.parse_modules()
 
 sim = Sim()
 sim.run()
