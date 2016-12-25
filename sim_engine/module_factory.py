@@ -49,6 +49,9 @@ class ModuleFactory(object):
 
         return module_class(paras=new_paras)
 
+    def __str__(self):
+        return str(self.modules)
+
 
 if __name__ == '__main__':
     module_factory = ModuleFactory()

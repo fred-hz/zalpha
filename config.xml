@@ -7,17 +7,17 @@
 	<!-- backdays? checkPointDays? -->
 	<Constants backdays="256" checkPointDays="5"/>
 
-	<!-- Basic environment needed to be loaded into context. Only one environment can be loaded.
+	<!-- All the modules to be combined together -->
+	<Modules type="collection">
+		<!-- Basic environment needed to be loaded into context. Only one environment can be loaded.
 		 Mainly to load ticker-index mapping and date-index mapping.
 	 	 class: Python class to analyze environment data.
 	 	 dataPath: Path of raw data to be loaded as environment. Needed to be cached before used.
 	 	 cachePath: Path of cached (dumped) data to be loaded as environment. If cache exists,
 	 	 dataPath will be useless.
-	 -->
-	<Environment id="envStandard" class="environment.env_standard.Environment" dataPath="" cachePath="" startDate="20060101" endDate="0"/>
+	 	-->
+		<Module id="envStandard" class="environment.env_standard.EnvStandard" dataPath="" cachePath="" startDate="20060101" endDate="0"/>
 
-	<!-- All the modules to be combined together -->
-	<Modules type="collection">
 		<!-- Universe Modules, which return the top-highest-liquidity stocks which can be traded
 		under the filter conditions.
 		universe: Number of stocks selected
@@ -52,6 +52,7 @@
 
 	<!-- delay? method? ndays? -->
 	<AlphaTest id="zalpha" delay="1" method="1" ndays="5">
+		<Environment moduleId="envStandard"/>
 		<Universe moduleId="TOP500"/>
 		<Alpha moduleId="AlphaSample" />
 		<Operations type="collection">

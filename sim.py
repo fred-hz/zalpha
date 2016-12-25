@@ -1,14 +1,20 @@
 from sim_engine.engine import Engine
+import sys
 
 class Sim(object):
 
-    def __init__(self):
-        self.engine = Engine()
+    def __init__(self, config_path='/Users/Onlyrabbit/PycharmProjects/zalpha/config.xml'):
+        self.engine = Engine(config_path=config_path)
 
     def run(self):
         self.engine.parse_config()
-        self.engine.parse_environment()
+        self.engine.parse_path()
+        self.engine.parse_constant()
         self.engine.parse_modules()
 
-sim = Sim()
-sim.run()
+if __name__ == '__main__':
+    if len(sys.argv) > 1:
+        sim = Sim(sys.argv[1])
+    else:
+        sim = Sim()
+    sim.run()
