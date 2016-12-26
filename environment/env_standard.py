@@ -3,11 +3,12 @@ from pipeline.serialization import Serializable
 class EnvStandard(Serializable):
 
     def __init__(self, paras):
-        super().__init__()
         self.data_path = paras['dataPath']
         self.cache_path = paras['cachePath']
         self.start_date = paras['startDate']
         self.end_date = paras['endDate']
+
+        super().__init__(self.cache_path)
 
         self.di_list = []
         self.ii_list = []
@@ -25,13 +26,6 @@ class EnvStandard(Serializable):
         """
         context.di_list = self.di_list
         context.ii_list = self.ii_list
-
+        
     def compute(self):
         pass #我来写
-
-    def load_data(self):
-        if self.cache_exist(self.cache_path):
-            self.load(self.cache_path)
-        else:
-            self.compute()
-            self.dump(self.cache_path)

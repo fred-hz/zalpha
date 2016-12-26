@@ -9,8 +9,9 @@ import os.path
 class Serializable(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self):
+    def __init__(self, cache_path):
         self.serialize_list = []
+        self.cache_path = cache_path
 
     def register_serialization(self, name):
         if name in self.serialize_list:
@@ -44,3 +45,14 @@ class Serializable(object):
                     name=name
                 ))
             setattr(self, name, var)
+
+    def load_data(self):
+        if self.cache_exist(self.cache_path):
+            self.load(self.cache_path)
+        else:
+            self.compute_cache()
+            self.dump(self.cache_path)
+
+    @abstractmethod
+    def compute_cache(self):
+        raise Exception('Not implemented as an abstractmethod.')
