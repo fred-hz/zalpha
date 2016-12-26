@@ -47,13 +47,18 @@
 		<Module id="AlphaOpPower" class="operation.alpha_op_power.AlphaOpPower"/>
 
 		<!-- Performance Modules -->
-		<Module id="Performance" class="performance.performance.Performance" />
+		<Module id="Performance" class="performance.performance.Performance"  longmode="" shortmode="" longcapital="" shortcapital="" tax="0." fee="0."/>
 	</Modules>
 
 	<!-- delay? method? ndays? -->
-	<AlphaTest id="zalpha" delay="1" method="1" ndays="5">
+	<AlphaTest id="zalpha" delay="1" method="1" ndays="5" startDate="20100101" endDate="20141231">
 		<Environment moduleId="envStandard"/>
 		<Universe moduleId="TOP500"/>
+        <Datas>
+            <Data moduleId="basedata"/>
+            <Data moduleId="wind.financeindex"/>
+            <Data moduleId="adjPrice"/>
+        </Datas>
 		<Alpha moduleId="AlphaSample" />
 		<Operations type="collection">
 			<Operation moduleId="AlphaOpPower" exp="3.0"/>
@@ -61,7 +66,7 @@
 			<Operation moduleId="AlphaOpTruncate" maxPercent="0.1"/>
 			<Operation moduleId="AlphaOpIndNeut" group="industry"/>
 		</Operations>
-		<Performance moduleId="Performance" longmode="" shortmode="" longcapital="" shortcapital="" tax="0." fee="0."/>
+		<Performance moduleId="Performance"/>
 	</AlphaTest>
 
 	<!--

@@ -9,7 +9,6 @@ class Engine(object):
         self.config_path = config_path
         self.xml_structure = {}
 
-        self.module_factory = ModuleFactory()
         self.context = Context()
         self.constants = {}
         self.paths = {}
@@ -19,6 +18,10 @@ class Engine(object):
         # Root node
         root = tree.getroot()
         self.xml_structure = self._parse_node(root)
+
+        engine._parse_path()
+        engine._parse_constant()
+        engine._parse_modules()
 
     @staticmethod
     def _node_is_collection(node):
@@ -39,7 +42,7 @@ class Engine(object):
 
         return structure
 
-    def parse_modules(self):
+    def _parse_modules(self):
         module_list = self.xml_structure['Modules']
         for module_para in module_list:
             mid = module_para['id']
@@ -59,16 +62,18 @@ class Engine(object):
 
             self.module_factory.register_module(mid, module_para)
 
-    def parse_path(self):
+    def _parse_path(self):
         self.paths = self.xml_structure['Paths']
 
-    def parse_constant(self):
+    def _parse_constant(self):
         self.constants = self.xml_structure['Constants']
+
+    def init_alpha_test(self):
+        alpha_test_config = self.xml_structure['AlphaTest']
+        print(alpha_test_config)
 
 
 if __name__ == '__main__':
     engine = Engine('/Users/Onlyrabbit/PycharmProjects/zalpha/config.xml')
     engine.parse_config()
-    engine.parse_path()
-    engine.parse_constant()
-    engine.parse_modules()
+    engine.init_alpha_test()

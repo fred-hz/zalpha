@@ -1,5 +1,4 @@
 import numpy as np
-import sim_engine.context as Context
 
 """
 Alpha based functions should return in the form of
@@ -50,7 +49,8 @@ index_based_mapping = {
 
 
 class Performance(object):
-    def __init__(self, start_di, end_di, long_mode, short_mode, long_capital, short_capital, ticker_price):
+    def __init__(self, context, start_di, end_di, long_mode, short_mode, long_capital, short_capital, ticker_price):
+        self.context = context
         self.start_di = start_di
         self.end_di = end_di
         self.long_mode = long_mode
@@ -60,8 +60,8 @@ class Performance(object):
         # Deal price: open, close or vwap. used in the form of ticker_price[di][ii]
         self.ticker_price = ticker_price
 
-        di_size = len(Context.di_list)
-        ii_size = len(Context.ii_list)
+        di_size = len(self.context.di_list)
+        ii_size = len(self.context.ii_list)
         # Stores the capital position of each stock
         self.alpha_positions = np.zeros((di_size, ii_size))
 
@@ -84,7 +84,7 @@ class Performance(object):
             long_stats = index_based_mapping[self.long_mode](di=di,
                                                              is_long=True,
                                                              capital=self.long_capital,
-                                                             price=Context.data_container[self.long_mode])
+                                                             price=self.context.data_container[self.long_mode])
         else:
             raise Exception
 
@@ -100,7 +100,7 @@ class Performance(object):
             short_stats = index_based_mapping[self.short_mode](di=di,
                                                                is_long=False,
                                                                capital=self.short_capital,
-                                                               price=Context.data_container[self.long_mode])
+                                                               price=self.context.data_container[self.long_mode])
         else:
             raise Exception
 

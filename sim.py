@@ -8,9 +8,6 @@ class Sim(object):
 
     def run(self):
         self.engine.parse_config()
-        self.engine.parse_path()
-        self.engine.parse_constant()
-        self.engine.parse_modules()
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
