@@ -26,6 +26,6 @@ class EnvStandard(Serializable):
         """
         context.di_list = self.di_list
         context.ii_list = self.ii_list
-
-    def compute_cache(self):
-        pass
+        
+    def compute(self):
+        pass #我来写
