@@ -27,7 +27,7 @@ class EnvStandard(Serializable):
         context.ii_list = self.ii_list
 
     def compute(self):
-        pass
+        pass #我来写
 
     def load_data(self):
         if self.cache_exist(self.cache_path):

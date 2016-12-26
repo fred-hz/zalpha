@@ -2,7 +2,7 @@ class Context(object):
 
     def __init__(self):
         """
-        di_list is in the form of [20060101, 20060102, ...]
+        di_list is in the form of ['20060101', '20060102', ...]
         ii_list is in the form of ['000001', '000002', ...]
         """
         self.di_list = []
