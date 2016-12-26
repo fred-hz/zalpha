@@ -19,10 +19,11 @@ price: deal price for each stock on di
 history_position: capital position for each stock in history
 start_di: di of the start date of back test
 """
-def alpha_normal(alpha, di, is_long, capital, price, history_position, start_di):
+def alpha_normal(alpha, di, is_long, capital, context, history_position, start_di, end_di):
+    cps = context.fetch_data('basedata_close')
     pass
 
-def alpha_top50(alpha, di, is_long, capital, price, history_position, start_di):
+def alpha_top(alpha, di, is_long, capital, context, history_position, start_di, thredhold):
     pass
 
 """

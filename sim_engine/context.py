@@ -7,7 +7,6 @@ class Context(object):
         """
         self.di_list = []
         self.ii_list = []
-
         self.data_container = {}
 
     def set_di_list(self, _list):
