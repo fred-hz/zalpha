@@ -3,13 +3,12 @@ from abc import (
     abstractmethod
 )
 
-
 class OperationBase(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self, params):
+    def __init__(self, context):
         # params is supposed to be a list
-        pass
+        self.context = context
 
     @abstractmethod
     def refresh(self, di, alpha):

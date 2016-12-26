@@ -27,5 +27,14 @@ class EnvStandard(Serializable):
         context.di_list = self.di_list
         context.ii_list = self.ii_list
         
-    def compute(self):
-        pass #我来写
+    def compute_cache(self):
+        with open(self.data_path+'listing_date.csv') as fp:
+            content = fp.read().splitlines()
+
+        for line in content[1:]:
+            items = line.split(',')
+            if items[2] == '1':
+                self.di_list.append(items[1][1:5] + items[1][6:8] + items[1][9:11])
+
+
+
