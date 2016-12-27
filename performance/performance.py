@@ -9,7 +9,7 @@ Alpha based functions should return in the form of
     'short_capital': xxx,
     'long_num': xxx,
     'short_num': xxx,
-    'tvr': xxx,
+    'tvr': xxx
 }
 di: date index
 alpha: alpha values for each stock on di
@@ -53,12 +53,12 @@ def alpha_normal(alpha, di, is_long, capital, context, history_position, start_d
     else:
         if is_long:
             tvr = np.sum(np.absolute(history_position[di][alpha > 0] - history_position[di - 1][alpha > 0]))
-            tmp = np.where(alpha > 0 & -np.isnan(adj_cps[di - 2]) & -np.isnan(adj_cps[di - 1]) & -np.isnan(adj_cps[di]) & -np.isnan(adj_vwap[di]))
+            tmp = np.where(alpha > 0 & -np.isnan(adj_cps[di - 2]) & -np.isnan(adj_cps[di - 1]) & -np.isnan(adj_cps[di]) & -np.isnan(adj_vwap[di]))[0]
             pnl = np.sum(history_position[di][tmp] / adj_cps[di - 1][tmp] * (adj_cps[di][tmp] - adj_vwap[di][tmp]) + \
                          history_position[di-1][tmp] / adj_cps[di - 2][tmp] * (adj_vwap[di][tmp] - adj_cps[di - 1][tmp]))
         else:
             tvr = np.sum(np.absolute(history_position[di][alpha < 0] - history_position[di - 1][alpha < 0]))
-            tmp = np.where(alpha < 0 & -np.isnan(adj_cps[di - 2]) & -np.isnan(adj_cps[di - 1]) & -np.isnan(adj_cps[di]) & -np.isnan(adj_vwap[di]))
+            tmp = np.where(alpha < 0 & -np.isnan(adj_cps[di - 2]) & -np.isnan(adj_cps[di - 1]) & -np.isnan(adj_cps[di]) & -np.isnan(adj_vwap[di]))[0]
             pnl = np.sum(history_position[di][tmp] / adj_cps[di - 1][tmp] * (adj_cps[di][tmp] - adj_vwap[di][tmp]) + \
                          history_position[di - 1][tmp] / adj_cps[di - 2][tmp] * (adj_vwap[di][tmp] - adj_cps[di - 1][tmp]))
 
