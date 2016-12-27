@@ -10,7 +10,7 @@ class OperationPower(OperationBase):
         else:
             self.dense = ('True' == params['dense'])
         self.valid = self.context.fetch_data() # need to revise
-        Instruments_size = len(self.context.ii_list) # GLOBAL ??
+        Instruments_size = len(self.context.ii_list)
         self.hist = np.zeros((self.days, Instruments_size))
         self.hist.flat = np.nan
         self.num = np.zeros(Instruments_size, dtype=np.int)

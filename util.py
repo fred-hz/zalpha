@@ -48,20 +48,14 @@ def partition(alist, amap, first, last):
 
 
 def rank(x):
-    xmap = []
-    x1 = []
-    n = 0
-    last_ = 0
-    for i in range(len(x)):
-        if not np.isnan(x[i]):
-            last_ = i
-            x1.append(x[i])
-            xmap.append(i)
-            n += 1
+    n = np.sum(-np.isnan(x))
     if n <= 1:
         if n == 1:
-            x[last_] = 0.5
+            x[-np.isnan(x)] = 0.5
         return n
+    x1 = x[-np.isnan(x)]
+    xmap = np.where(-np.isnan(x))
+
     quickSort(x1, xmap)
     i = 0
     while i < n:
@@ -101,6 +95,8 @@ def powerNoRank(x, num):
 
 def truncate(x, maxPercent = 0.1, maxIter = 1):
     for i in range(maxIter):
+        sum_p = np.sum(x[x > 0])
+        sum_n = np.sum(x[x < 0])
         sum_p = 0.
         sum_n = 0.
         for item in x:

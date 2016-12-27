@@ -5,7 +5,7 @@ class OperationPower(OperationBase):
     def __init__(self, params, context):
         super().__init__(context)
         self.exp = float(params['exp'])
-        if not 'dorank' in params:
+        if 'dorank' not in params:
             self.dorank = True
         else:
             self.dorank = ('True' == params['dorank'])
