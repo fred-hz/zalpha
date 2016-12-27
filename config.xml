@@ -53,13 +53,14 @@
 	<!-- delay? method? ndays? -->
 	<AlphaTest id="zalpha" delay="1" method="1" ndays="5" startDate="20100101" endDate="20141231">
 		<Environment moduleId="envStandard"/>
-		<Universe moduleId="TOP500"/>
         <Datas>
             <Data moduleId="basedata"/>
             <Data moduleId="wind.financeindex"/>
             <Data moduleId="adjPrice"/>
         </Datas>
-		<Alpha moduleId="AlphaSample" />
+		<Alphas type="collection">
+            <ALpha moduleId="AlphaSample" universeId="TOP500"/>
+        </Alphas>
 		<Operations type="collection">
 			<Operation moduleId="AlphaOpPower" exp="3.0"/>
 			<Operation moduleId="AlphaOpDecay" days="10"/>
