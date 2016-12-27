@@ -1,12 +1,13 @@
 from pipeline.serialization import Serializable
+import os, re
 
 class EnvStandard(Serializable):
 
-    def __init__(self, paras):
-        self.data_path = paras['dataPath']
-        self.cache_path = paras['cachePath']
-        self.start_date = paras['startDate']
-        self.end_date = paras['endDate']
+    def __init__(self, params):
+        self.data_path = params['dataPath'] #路径和字符串
+        self.cache_path = params['cachePath']
+        self.start_date = params['startDate']
+        self.end_date = params['endDate']
 
         super().__init__(self.cache_path)
 
@@ -28,13 +29,22 @@ class EnvStandard(Serializable):
         context.ii_list = self.ii_list
         
     def compute_cache(self):
-        with open(self.data_path+'listing_date.csv') as fp:
+        with open(os.path.join(self.data_path,'listing_date.csv')) as fp:
             content = fp.read().splitlines()
 
         for line in content[1:]:
-            items = line.split(',')
+            items = line.replace('"', '').replace('-', '').split(',')
             if items[2] == '1':
-                self.di_list.append(items[1][1:5] + items[1][6:8] + items[1][9:11])
+                self.di_list.append(items[1])
 
+        address = self.data_path + '\\raw_stock_daily_data'
+        files = os.listdir(address)
 
-
+        for file_ in files:
+            with open(address + '\\' + file_) as fp:
+                content = fp.read().splitlines()
+            for line in content[1:]:
+                items = line.replace('"', '').split(',')
+                items[1] = re.sub('\D', '', items[1])
+                if items[1] not in self.ii_list:
+                    self.ii_list.append(items[1])
