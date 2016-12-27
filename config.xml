@@ -59,7 +59,7 @@
             <Data moduleId="adjPrice"/>
         </Datas>
 		<Alphas type="collection">
-            <ALpha moduleId="AlphaSample" universeId="TOP500"/>
+            <Alpha moduleId="AlphaSample" universeId="TOP500"/>
         </Alphas>
 		<Operations type="collection">
 			<Operation moduleId="AlphaOpPower" exp="3.0"/>
