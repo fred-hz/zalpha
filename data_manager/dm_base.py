@@ -3,13 +3,6 @@ from abc import (
     abstractmethod
 )
 import os
-from context import (
-    dm,
-    di2date,
-    date2di,
-    ii2ticker,
-    ticker2ii
-)
 from pipeline.serialization import Serializable
 import pickle
 
@@ -17,22 +10,18 @@ import pickle
 class DataManagerBase(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self, mid, data_path):
-        """
-
-        :param mid: Module id.
-        :param data_path: DM could load data from file and use it to calculate.
-        :param args:
-        :param kwargs:
-        """
+    def __init__(self, mid, context):
         self.mid = mid
-        self.data_path = data_path
+        self.context = context
 
         # Store data. In the format of {data_name: data}
         self.data = {}
 
         # Store dependency. In the format of [data_name]
         self.dependency = []
+
+        self.start_date = context.start_date
+        self.end_date = context.end_date
 
         self.initialize()
         self.register_dependency()
@@ -47,27 +36,12 @@ class DataManagerBase(object):
         raise NotImplementedError
 
     def _compute(self):
-        """
-        Logic loop of self.compute()
-        :return:
-        """
-        """
-        for date in [di]:
-            self.compute_day(di)
-        """
-        for di in di2date.keys():
-            # If self.data_path exists, we need to load everyday data from file
-            if not (self.data_path is None or self.data_path == ''):
-                self.load_day(di)
+        start_di = self.context.date_idx(self.start_date)
+        end_di = self.context.date_idx(self.end_date)
+        for di in range(start_di, end_di + 1):
             self.compute_day(di)
 
     def compute(self):
-        """
-        The function is a wrapper of self.compute_day(self, di).
-        If the object is a DataManageCacheable, the compute will depend on the existance of cache.
-        If the object is not, the compute will just call compute_day(self, di) in a loop.
-        :return:
-        """
         self._compute()
 
     @abstractmethod
@@ -75,15 +49,6 @@ class DataManagerBase(object):
         """
         Compute data everyday
         :param di: Index of date.
-        :return:
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def load_day(self, di):
-        """
-        Load data from file every day
-        :param di: Index of date
         :return:
         """
         raise NotImplementedError
@@ -98,7 +63,7 @@ class DataManagerBase(object):
 
     # Call self.register_single_dependency in self.register_dependency
     def register_single_dependency(self, data_name):
-        dm.register_dependency(self.mid, data_name)
+        self.dependency.append(data_name)
 
     @abstractmethod
     def register_data(self):
@@ -109,9 +74,15 @@ class DataManagerBase(object):
         raise NotImplementedError
 
     # Call self.register_single_data in self.register_data
+    # Just register a position in self.data. Do not need value now.
     def register_single_data(self, data_name, data):
-        dm.register_data(self.mid, data_name, data)
+        self.data[data_name] = data
 
+    def get_dependencies(self):
+        return self.dependency
+
+    def get_data(self):
+        return self.data
 
 class DataManagerCacheable(DataManagerBase, Serializable):
 
@@ -123,44 +94,30 @@ class DataManagerCacheable(DataManagerBase, Serializable):
     """
     __metaclass__ = ABCMeta
 
-    def __init__(self, mid, data_path, cache_path):
-        super(DataManagerCacheable, self).__init__(mid, data_path)
-        self.cache_path = cache_path
+    def __init__(self, mid, context):
+        super(DataManagerCacheable, self).__init__(mid=mid, context=context, cache_path=context['cachePath'])
+        self.register_caches()
 
     def compute(self):
-        if not self.cache_exist():
+        if not self.cache_exist(self.cache_path):
             self._compute()
-            # and need to dump matrixes
+            self.dump(self.cache_path)
         else:
-            self.load_cache()
+            self.load(self.cache_path)
+
+    @abstractmethod
+    def register_caches(self):
+        raise NotImplementedError
 
     @abstractmethod
     def register_data(self):
         raise NotImplementedError
 
     @abstractmethod
-    def register_dependencies(self):
+    def register_dependency(self):
         raise NotImplementedError
 
     @abstractmethod
     def compute_day(self, di):
         raise NotImplementedError
 
-    def cache_exist(self):
-        file_list = os.listdir(self.cache_path)
-        return file_list is not None and len(file_list) != 0
-
-    def dump_cache(self):
-        for data_name, data in self.data.items():
-            self._dump(data_name, data)
-
-    def load_cache(self):
-        for data_name in self.data.keys():
-            self._load(data_name)
-
-    def _dump(self, data_name, data):
-        path = os.path.join(self.cache_path, data_name)
-        pickle.dump(data, open(path, 'wb'))
-
-    def _load(self, data_name):
-        setattr(self, data_name, pickle.load(os.path.join(self.cache_path, data_name)))

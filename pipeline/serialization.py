@@ -50,9 +50,4 @@ class Serializable(object):
         if self.cache_exist(self.cache_path):
             self.load(self.cache_path)
         else:
-            self.compute_cache()
-            self.dump(self.cache_path)
-
-    @abstractmethod
-    def compute_cache(self):
-        raise Exception('Not implemented as an abstractmethod.')
+            raise Exception('No cache_path found')
