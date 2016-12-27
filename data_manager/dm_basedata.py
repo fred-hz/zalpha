@@ -7,7 +7,6 @@ import numpy as np
 
 class DataManagerBaseData(DataManagerCacheable):
     def __init__(self, mid, context, params):
-        super(DataManagerBaseData, self).__init__(mid=mid, context=context)
         self.data_path = params['dataPath']
 
         di_size = len(context.di_list)
@@ -15,6 +14,7 @@ class DataManagerBaseData(DataManagerCacheable):
 
         self.open = np.ndarray((di_size, ii_size))
         self.close = np.ndarray((di_size, ii_size))
+        super(DataManagerBaseData, self).__init__(mid=mid, context=context)
 
     def register_caches(self):
         self.register_serialization(self.open)
