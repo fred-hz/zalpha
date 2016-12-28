@@ -14,19 +14,14 @@ def quickSortHelper(alist, amap, first, last):
 
 def partition(alist, amap, first, last):
     pivotvalue = alist[first]
-
     leftmark = first + 1
     rightmark = last
-
     done = False
     while not done:
-
         while leftmark <= rightmark and alist[leftmark] <= pivotvalue:
             leftmark = leftmark + 1
-
         while alist[rightmark] >= pivotvalue and rightmark >= leftmark:
             rightmark = rightmark - 1
-
         if rightmark < leftmark:
             done = True
         else:
@@ -36,14 +31,12 @@ def partition(alist, amap, first, last):
             temp = amap[leftmark]
             amap[leftmark] = amap[rightmark]
             amap[rightmark] = temp
-
     temp = alist[first]
     alist[first] = alist[rightmark]
     alist[rightmark] = temp
     temp = amap[first]
     amap[first] = amap[rightmark]
     amap[rightmark] = temp
-
     return rightmark
 
 
@@ -54,8 +47,7 @@ def rank(x):
             x[-np.isnan(x)] = 0.5
         return n
     x1 = x[-np.isnan(x)]
-    xmap = np.where(-np.isnan(x))
-
+    xmap = np.where(-np.isnan(x))[0]
     quickSort(x1, xmap)
     i = 0
     while i < n:
@@ -70,54 +62,21 @@ def rank(x):
     return n
 
 
-def sign(x):
-    if x > 0:
-        return 1
-    elif x < 0:
-        return -1
-    else:
-        return 0
-
-
 def power(x, num):
     rank(x)
-    for i in range(len(x)):
-        if np.isnan(x[i]):
-            continue
-        x[i] -= 0.5
-        x[i] = sign(x[i]) * pow(abs(x[i]), num)
+    x[:] -= 0.5
+    x[:] = np.sign(x[:]) * np.power(np.abs(x[:]),num)
 
 def powerNoRank(x, num):
-    for i in range(len(x)):
-        if np.isnan(x[i]):
-            continue
-        x[i] = sign(x[i]) * pow(abs(x[i]), num)
+    x[:] = np.sign(x[:]) * np.power(np.abs(x[:]), num)
 
 def truncate(x, maxPercent = 0.1, maxIter = 1):
     for i in range(maxIter):
         sum_p = np.sum(x[x > 0])
         sum_n = np.sum(x[x < 0])
-        sum_p = 0.
-        sum_n = 0.
-        for item in x:
-            if np.isnan(item):
-                continue
-            if item > 0:
-                sum_p += item
-            else:
-                sum_n += item
-        iUpdate = 0
-        #print(sum_p * maxPercent)
-        for k in range(len(x)):
-            if np.isnan(x[k]):
-                continue
-            if x[k] > sum_p * maxPercent:
-                x[k] = sum_p * maxPercent
-                iUpdate += 1
-            if x[k] < sum_n * maxPercent:
-                x[k] = sum_n * maxPercent
-                iUpdate += 1
-        #print(x)
+        x[x > sum_p * maxPercent] = sum_p * maxPercent
+        x[x < sum_n * maxPercent] = sum_n * maxPercent
+        iUpdate = np.sum(x > sum_p * maxPercent) + np.sum(x < sum_n * maxPercent)
         if iUpdate == 0:
             return
         if i == maxIter - 1 and iUpdate > 0:
