@@ -81,8 +81,11 @@ class DataManagerBase(object):
     def get_dependencies(self):
         return self.dependency
 
-    def get_data(self):
-        return self.data
+    def get_data_names(self):
+        return self.data.keys()
+
+    def get_data(self, name):
+        return self.data[name]
 
 class DataManagerCacheable(DataManagerBase, Serializable):
 
@@ -120,4 +123,15 @@ class DataManagerCacheable(DataManagerBase, Serializable):
     @abstractmethod
     def compute_day(self, di):
         raise NotImplementedError
+
+    def get_data(self, name):
+        if self.data[name] is not None:
+            return self.data[name]
+        elif self.cache_exist(self.cache_path):
+            self.data[name] = self.load_single_data(cache_path=self.cache_path, name=name)
+            return self.data[name]
+        else:
+            raise Exception('data {name} can not be found in calculation or cache'.format(
+                name=name
+            ))
 

@@ -37,6 +37,14 @@ class Serializable(object):
                 ))
             pickle.dump(file=os.path.join(cache_path, name), obj=var)
 
+    def load_single_data(self, cache_path, name):
+        obj = pickle.load(file=os.path.join(cache_path, name))
+        if obj is None:
+            raise Exception('Loading None object {name}'.format(
+                name=name
+            ))
+        return obj
+
     def load(self, cache_path):
         for name in self.serialize_list:
             var = pickle.load(file=os.path.join(cache_path, name))

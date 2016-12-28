@@ -142,7 +142,7 @@ class Performance(object):
             long_stats = index_based_mapping[self.long_mode](di=di,
                                                              is_long=True,
                                                              capital=self.long_capital,
-                                                             index=)
+                                                             index='')
         else:
             raise Exception
 
@@ -159,7 +159,7 @@ class Performance(object):
             short_stats = index_based_mapping[self.short_mode](di=di,
                                                                is_long=False,
                                                                capital=self.short_capital,
-                                                               index=)
+                                                               index='')
         else:
             raise Exception
 
