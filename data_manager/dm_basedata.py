@@ -166,7 +166,6 @@ class DataManagerBaseData(DataManagerCacheable):
                     print("warning : there is no accumulated adjust factor data of ticker : " + ticker + " at date: " + date)
                     self.accumAdjFactor[di][ii] = np.nan
 
-
     def register_dependency(self):
         # Do not need dependencies in DataManagerBaseData
         pass

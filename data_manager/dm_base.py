@@ -23,7 +23,7 @@ class DataManagerBase(object):
 
         self.initialize()
         self.register_dependency()
-        self.register_data()
+        self.register_data_names()
 
     @abstractmethod
     def initialize(self):

@@ -71,6 +71,8 @@ class Engine(object):
     def init_alpha_test(self):
         alpha_test_config = self.xml_structure['AlphaTest']
         print(alpha_test_config)
+        for module in alpha_test_config:
+            pass
 
 
 if __name__ == '__main__':
