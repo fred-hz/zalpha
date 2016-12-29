@@ -95,8 +95,8 @@ class DataManagerCacheable(DataManagerBase, Serializable):
     """
     __metaclass__ = ABCMeta
 
-    def __init__(self, mid, context):
-        super(DataManagerCacheable, self).__init__(mid=mid, context=context, cache_path=context['cachePath'])
+    def __init__(self, mid, context, cache_path):
+        super(DataManagerCacheable, self).__init__(mid=mid, context=context, cache_path=cache_path)
         self.register_caches()
 
     def compute(self):
