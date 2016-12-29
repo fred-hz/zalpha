@@ -45,6 +45,6 @@ class EnvStandard(Serializable):
                 content = fp.read().splitlines()
             for line in content[1:]:
                 items = line.replace('"', '').split(',')
-                items[1] = re.sub('\D', '', items[1])
-                if items[1] not in self.ii_list:
-                    self.ii_list.append(items[1])
+                ticker = re.sub('\D', '', items[1])
+                if ticker not in self.ii_list:
+                    self.ii_list.append(ticker)
