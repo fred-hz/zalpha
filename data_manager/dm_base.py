@@ -2,9 +2,7 @@ from abc import (
     ABCMeta,
     abstractmethod
 )
-import os
 from pipeline.serialization import Serializable
-import pickle
 
 
 class DataManagerBase(object):
@@ -66,7 +64,7 @@ class DataManagerBase(object):
         self.dependency.append(data_name)
 
     @abstractmethod
-    def register_data(self):
+    def register_data_names(self):
         """
         Register data into globals
         :return:
@@ -113,7 +111,7 @@ class DataManagerCacheable(DataManagerBase, Serializable):
         raise NotImplementedError
 
     @abstractmethod
-    def register_data(self):
+    def register_data_names(self):
         raise NotImplementedError
 
     @abstractmethod

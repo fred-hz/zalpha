@@ -26,7 +26,7 @@ class DataManagerBaseData(DataManagerCacheable):
     def initialize(self):
         pass
 
-    def register_data(self):
+    def register_data_names(self):
         self.register_single_data('open', self.open)
         self.register_single_data('close', self.close)
 
