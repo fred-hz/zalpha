@@ -9,6 +9,7 @@ class DataManagerBase(object):
     __metaclass__ = ABCMeta
 
     def __init__(self, mid, context):
+        # Always run DataManagerBase.__init__() at the end of the __init__() function of sub class
         self.mid = mid
         self.context = context
 
@@ -96,6 +97,7 @@ class DataManagerCacheable(DataManagerBase, Serializable):
     __metaclass__ = ABCMeta
 
     def __init__(self, mid, context, cache_path):
+        # Always run DataManageCacheable.__init__() at the end of __init__() function of sub class
         super(DataManagerCacheable, self).__init__(mid=mid, context=context, cache_path=cache_path)
         self.register_caches()
 
@@ -103,8 +105,8 @@ class DataManagerCacheable(DataManagerBase, Serializable):
         if not self.cache_exist(self.cache_path):
             self._compute()
             self.dump(self.cache_path)
-        else:
-            self.load(self.cache_path)
+        # else:
+        #     self.load(self.cache_path)
 
     @abstractmethod
     def register_caches(self):

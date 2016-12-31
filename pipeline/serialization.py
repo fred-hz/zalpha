@@ -38,24 +38,29 @@ class Serializable(object):
             pickle.dump(file=os.path.join(cache_path, name), obj=var)
 
     def load_single_data(self, cache_path, name):
+        if name not in self.serialize_list:
+            raise Exception('Data {name} is not in cache'.format(
+                name=name
+            ))
         obj = pickle.load(file=os.path.join(cache_path, name))
         if obj is None:
             raise Exception('Loading None object {name}'.format(
                 name=name
             ))
+        setattr(self, name, obj)
         return obj
 
-    def load(self, cache_path):
-        for name in self.serialize_list:
-            var = pickle.load(file=os.path.join(cache_path, name))
-            if var is None:
-                raise Exception('Loading None object {name}'.format(
-                    name=name
-                ))
-            setattr(self, name, var)
+    # def load(self, cache_path):
+    #     for name in self.serialize_list:
+    #         var = pickle.load(file=os.path.join(cache_path, name))
+    #         if var is None:
+    #             raise Exception('Loading None object {name}'.format(
+    #                 name=name
+    #             ))
+    #         setattr(self, name, var)
 
-    def load_data(self):
-        if self.cache_exist(self.cache_path):
-            self.load(self.cache_path)
-        else:
-            raise Exception('No cache_path found')
+    # def load_data(self):
+    #     if self.cache_exist(self.cache_path):
+    #         self.load(self.cache_path)
+    #     else:
+    #         raise Exception('No cache_path found')

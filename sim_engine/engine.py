@@ -3,6 +3,17 @@ from sim_engine.module_factory import ModuleFactory
 from sim_engine.context import Context
 import re
 
+# Map between variable name in Engine and module tag name in config.xml
+# Tag name in config.xml : Variable name in Engine
+module_type_name_map = {
+    'Environment': 'Environment',
+    'Universe': 'Universe',
+    'Data': 'Data',
+    'Alpha': 'Alpha',
+    'Operation': 'Operation',
+    'Performance': 'Performance'
+}
+
 class Engine(object):
     def __init__(self, config_path):
         self.module_factory = ModuleFactory()
@@ -25,10 +36,20 @@ class Engine(object):
 
     @staticmethod
     def _node_is_collection(node):
-        if 'type' in node.attrib.keys() and node.attrib['type'] == 'collection':
-            return True
-        else:
+        """
+        Return True if node is a list while False if node is a dictionary
+        :param node:
+        :return:
+        """
+        children = node.getchildren()
+        if children is None or len(children) == 0:
             return False
+
+        childnode_compare = children[0]
+        for child in children:
+            if childnode_compare.tag != child.tag:
+                return False
+        return True
 
     def _parse_node(self, node):
         if self._node_is_collection(node):
@@ -42,25 +63,32 @@ class Engine(object):
 
         return structure
 
-    def _parse_modules(self):
-        module_list = self.xml_structure['Modules']
-        for module_para in module_list:
-            mid = module_para['id']
-            # Justify full path name
-            for key in module_para.keys():
-                while re.compile('\$\{.*\}').match(module_para[key]):
-                    begin = module_para[key].find('${')
-                    end = module_para[key].find('}', begin)
-                    # e.g. to_replace_str can be ${CACHE} while paired_key can be CACHE
-                    to_replace_str = module_para[key][begin:end+1]
-                    paired_key = module_para[key][begin+2:end]
-                    if paired_key not in self.paths.keys():
-                        raise Exception('Path {str} can not be found in config.xml'.format(
-                            str=paired_key
-                        ))
-                    module_para[key] = module_para[key].replace(to_replace_str, self.paths[paired_key])
+    def _adjust_path(self, params):
+        """
+        Replace all the {PATH} in params with variable settings in <Paths></Paths>
+        :param params: List containing all the parameters of a module
+        :return:
+        """
+        for key in params.keys():
+            # Pattern: {...}
+            while re.compile(r'\{.*\}').match(params[key]):
+                index_begin = params[key].index('{')
+                index_end = params[key].index('}')
+                mapped_str = params[key][index_begin+1:index_end]
+                if mapped_str not in self.paths.keys():
+                    raise Exception('Path {path} can not be found in config.xml'.format(
+                        path=mapped_str
+                    ))
+                params[key] = params[key].replace('{' + mapped_str + '}', self.paths[mapped_str])
 
-            self.module_factory.register_module(mid, module_para)
+    def _parse_modules(self):
+        module_structure = self.xml_structure['Modules']
+
+        for module_type_name in module_type_name_map.keys():
+            module_list_by_type = module_structure[module_type_name]
+            for module in module_list_by_type:
+                self._adjust_path(module)
+                self.module_factory.register_module(mid=module['id'], paras=module)
 
     def _parse_path(self):
         self.paths = self.xml_structure['Paths']
@@ -78,4 +106,5 @@ class Engine(object):
 if __name__ == '__main__':
     engine = Engine('/Users/Onlyrabbit/PycharmProjects/zalpha/config.xml')
     engine.parse_config()
-    engine.init_alpha_test()
+    print(engine.xml_structure)
+    #engine.init_alpha_test()
