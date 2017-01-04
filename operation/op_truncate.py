@@ -12,7 +12,7 @@ class OperationTruncate(OperationBase):
         else:
             self.maxIter = int(self.params['maxIter'])
 
-    def compute_day(self, di, alpha=None):
+    def after_day(self, di, alpha):
         # Should return alpha as a list
         util.truncate(alpha, self.maxPercent, self.maxIter)
         return alpha

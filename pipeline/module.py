@@ -8,8 +8,12 @@ class Module(object):
 
     @abstractmethod
     def initialize(self):
-        raise Exception('Not implemented')
+        raise NotImplementedError
 
     @abstractmethod
     def compute_day(self, di):
-        raise Exception('Not implemented')
+        raise NotImplementedError
+
+    @abstractmethod
+    def after_day(self, di, alpha):
+        raise NotImplementedError

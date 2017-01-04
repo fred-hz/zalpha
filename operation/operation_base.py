@@ -18,5 +18,5 @@ class OperationBase(Module):
         raise NotImplementedError
 
     @abstractmethod
-    def compute_day(self, di, alpha=None):
+    def after_day(self, di, alpha):
         raise NotImplementedError

@@ -10,7 +10,7 @@ class OperationPower(OperationBase):
         else:
             self.dorank = ('True' == params['dorank'])
 
-    def refresh(self, di, alpha):
+    def after_day(self, di, alpha):
         # Should return alpha as a list
         if self.dorank:
             util.power(alpha, self.exp)
