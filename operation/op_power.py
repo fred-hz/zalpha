@@ -3,7 +3,7 @@ import util
 
 class OperationPower(OperationBase):
     def __init__(self, params, context):
-        super().__init__(context)
+        super().__init__(params, context)
         self.exp = float(params['exp'])
         if 'dorank' not in params:
             self.dorank = True

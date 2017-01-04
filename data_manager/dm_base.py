@@ -8,9 +8,8 @@ from pipeline.serialization import Serializable
 class DataManagerBase(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self, mid, context):
+    def __init__(self, params, context, **kwargs):
         # Always run DataManagerBase.__init__() at the end of the __init__() function of sub class
-        self.mid = mid
         self.context = context
 
         # Store data. In the format of {data_name: data}
@@ -96,9 +95,9 @@ class DataManagerCacheable(DataManagerBase, Serializable):
     """
     __metaclass__ = ABCMeta
 
-    def __init__(self, mid, context, cache_path):
+    def __init__(self, params, context, **kwargs):
         # Always run DataManageCacheable.__init__() at the end of __init__() function of sub class
-        super(DataManagerCacheable, self).__init__(mid=mid, context=context, cache_path=cache_path)
+        super(DataManagerCacheable, self).__init__(params=params, context=context, cache_path=params['cachePath'])
         self.register_caches()
 
     def compute(self):

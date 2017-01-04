@@ -3,7 +3,7 @@ import os, re
 
 class EnvStandard(Serializable):
 
-    def __init__(self, params):
+    def __init__(self, params, context):
         self.data_path = params['dataPath'] #路径和字符串
         self.cache_path = params['cachePath']
         self.start_date = params['startDate']

@@ -1,10 +1,10 @@
 from operation.operation_base import OperationBase
 import numpy as np
 
-class OperationPower(OperationBase):
+class OperationNeutral(OperationBase):
     def __init__(self, params, context):
-        super().__init__(context)
-        self.group = context.Context.fetch_data(params['group'])
+        super().__init__(params, context)
+        self.group = context.fetch_data(params['group'])
 
     def refresh(self, di, alpha):
         # Should return alpha as a list

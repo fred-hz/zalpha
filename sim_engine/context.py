@@ -7,7 +7,14 @@ class Context(object):
         """
         self.di_list = []
         self.ii_list = []
-        self.data_container = {}
+        self.data_container = {
+            'is_valid': None
+        }
+
+        self.constants = {}
+
+        self.start_date = None
+        self.end_date = None
 
     def set_di_list(self, _list):
         self.di_list = _list
@@ -36,3 +43,9 @@ class Context(object):
 
     def fetch_data(self, name):
         return self.data_container[name]
+
+    def register_constant(self, name, value):
+        self.constants[name] = value
+
+    def fetch_constant(self, name):
+        return self.constants[name]

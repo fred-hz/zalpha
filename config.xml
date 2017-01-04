@@ -45,15 +45,15 @@
 
 		<!-- Alpha Modules -->
         <Alpha>
-		    <Module id="AlphaSample" class="myalpha.alpha_sample.AlphaSample"/>
+		    <Module id="AlphaSample" class="alpha.alpha_sample.AlphaSample"/>
         </Alpha>
 
 		<!-- Operation Modules -->
         <Operation>
-            <Module id="AlphaOpTruncate" class="operation.alpha_op_truncate.AlphaOpTruncate"/>
-            <Module id="AlphaOpDecay" class="operation.alpha_op_decay.AlphaOpDecay"/>
-            <Module id="AlphaOpIndNeut" class="operation.alpha_op_indneut.AlphaOpIndNeut"/>
-            <Module id="AlphaOpPower" class="operation.alpha_op_power.AlphaOpPower"/>
+            <Module id="AlphaOpTruncate" class="operation.op_truncate.OperationTruncate"/>
+            <Module id="AlphaOpDecay" class="operation.op_decay.OperationDecay"/>
+            <Module id="AlphaOpNeutral" class="operation.op_neutral.OperationNeutral"/>
+            <Module id="AlphaOpPower" class="operation.op_power.OperationPower"/>
         </Operation>
 
 		<!-- Performance Modules -->
@@ -66,13 +66,14 @@
 	<AlphaTest id="zalpha" delay="1" method="1" ndays="5" startDate="20100101" endDate="20141231">
 		<Environment moduleId="envStandard"/>
 		<Alphas>
-            <Alpha moduleId="AlphaSample" universeId="TOP500"/>
+            <!-- Two Alpha tags can not have the same alphaId value -->
+            <Alpha alphaId="AlphaSample" universeId="TOP500"/>
         </Alphas>
 		<Operations>
 			<Operation moduleId="AlphaOpPower" exp="3.0"/>
 			<Operation moduleId="AlphaOpDecay" days="10"/>
 			<Operation moduleId="AlphaOpTruncate" maxPercent="0.1"/>
-			<Operation moduleId="AlphaOpIndNeut" group="industry"/>
+			<Operation moduleId="AlphaOpNeutral" group="industry"/>
 		</Operations>
 		<Performance moduleId="Performance"/>
 	</AlphaTest>

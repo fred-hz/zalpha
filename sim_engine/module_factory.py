@@ -1,23 +1,23 @@
 import xml.etree.ElementTree as ET
 
 class ModuleFactory(object):
-    def __init__(self):
+    def __init__(self, context):
         # Save modules. In the format of {mid: {variables values...}}
         self.modules = {}
-
         self.required_columns = ['class']
+        self.context = context
 
-    def register_module(self, mid, paras):
+    def register_module(self, mid, params):
         """
         Register modules into module factory. Fetch one module object later when needed.
         :param mid: Module id in config.xml
-        :param paras: A dict containing all the parameters
+        :param params: A dict containing all the parameters
         :return:
         """
         # check all the required parameters in kwargs
         qualified = True
         for column in self.required_columns:
-            if column not in paras.keys():
+            if column not in params.keys():
                 qualified = False
                 break
 
@@ -26,13 +26,13 @@ class ModuleFactory(object):
                 mid=mid
             ))
 
-        self.modules[mid] = paras
+        self.modules[mid] = params
 
-    def create_module(self, mid, paras):
+    def create_module(self, mid, params=None):
         """
         Create a module object according to the class name of module mid.
         :param mid: Module id in config.xml
-        :param paras: New paras from config.xml asides from already registered parameters
+        :param params: New paras from config.xml asides from already registered parameters
         :return:
         """
         class_name = self.modules[mid]['class']
@@ -42,12 +42,14 @@ class ModuleFactory(object):
         # Import python module
         python_module = __import__(python_module_path)
         # Fetch target class
-        module_class = getattr(python_module, names[-1])
+        module_file = getattr(python_module, names[-2])
+        module_class = getattr(module_file, names[-1])
 
-        new_paras = self.modules[mid].copy()
-        new_paras.update(paras)
+        new_params = self.modules[mid].copy()
+        if params is not None and len(params) != 0:
+            new_params.update(params)
 
-        return module_class(paras=new_paras)
+        return module_class(params=new_params, context=self.context)
 
     def __str__(self):
         return str(self.modules)

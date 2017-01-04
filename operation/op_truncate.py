@@ -3,14 +3,16 @@ import util
 
 class OperationTruncate(OperationBase):
     def __init__(self, params, context):
-        super().__init__(context)
-        self.maxPercent = float(params['maxPercent'])
-        if 'maxIter' not in params:
+        super().__init__(params, context)
+
+    def initialize(self):
+        self.maxPercent = float(self.params['maxPercent'])
+        if 'maxIter' not in self.params:
             self.maxIter = 1
         else:
-            self.maxIter = int(params['maxIter'])
+            self.maxIter = int(self.params['maxIter'])
 
-    def refresh(self, di, alpha):
+    def compute_day(self, di, alpha=None):
         # Should return alpha as a list
         util.truncate(alpha, self.maxPercent, self.maxIter)
         return alpha

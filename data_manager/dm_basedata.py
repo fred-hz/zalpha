@@ -7,9 +7,8 @@ import re
 
 
 class DataManagerBaseData(DataManagerCacheable):
-    def __init__(self, mid, context, params):
+    def __init__(self, context, params):
         print("DataManagerBaseData :: DataManagerBaseData initialize!")
-        self.mid = mid
         self.context = context
         self.params = params
         self.data_path = params['dataPath']
@@ -32,7 +31,7 @@ class DataManagerBaseData(DataManagerCacheable):
         self.accumAdjFactor = np.ndarray((di_size, ii_size), dtype=float)
         self.sharesout = np.ndarray((di_size, ii_size), dtype=float) #流通股数
 
-        super(DataManagerBaseData, self).__init__(mid=mid, context=context, cache_path=params['cachePath'])
+        super(DataManagerBaseData, self).__init__(context=context, params=params, cache_path=params['cachePath'])
 
     def register_caches(self):
         self.register_serialization('isOpen')

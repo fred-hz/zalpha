@@ -1,4 +1,5 @@
 import numpy as np
+from pipeline.module import Module
 
 """
 Alpha based functions should return in the form of
@@ -107,23 +108,32 @@ index_based_mapping = {
 }
 
 
-class Performance(object):
-    def __init__(self, context, start_di, end_di, long_mode, short_mode, long_capital, short_capital):
-        self.context = context
-        self.start_di = start_di
-        self.end_di = end_di
-        self.long_mode = long_mode
-        self.short_mode = short_mode
-        self.long_capital = long_capital
-        self.short_capital = short_capital
+class Performance(Module):
+    def __init__(self, params, context):
+        pass
 
-        di_size = len(self.context.di_list)
-        ii_size = len(self.context.ii_list)
-        # Stores the capital position of each stock
-        self.alpha_positions = np.zeros((di_size, ii_size))
+    # def __init__(self, context, start_di, end_di, long_mode, short_mode, long_capital, short_capital):
+    #     self.context = context
+    #     self.start_di = start_di
+    #     self.end_di = end_di
+    #     self.long_mode = long_mode
+    #     self.short_mode = short_mode
+    #     self.long_capital = long_capital
+    #     self.short_capital = short_capital
+    #
+    #     di_size = len(self.context.di_list)
+    #     ii_size = len(self.context.ii_list)
+    #     # Stores the capital position of each stock
+    #     self.alpha_positions = np.zeros((di_size, ii_size))
+    #
+    #     # Stores all the history stats
+    #     self.history_stats = []
 
-        # Stores all the history stats
-        self.history_stats = []
+    def initialize(self):
+        pass
+
+    def compute_day(self, di):
+        pass
 
     def daily_stats(self, alpha, di):
         long_stats = None

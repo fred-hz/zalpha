@@ -1,15 +1,15 @@
 from operation.operation_base import OperationBase
 import numpy as np
 
-class OperationPower(OperationBase):
+class OperationDecay(OperationBase):
     def __init__(self, params, context):
-        super().__init__(context)
+        super().__init__(params, context)
         self.days = float(params['days'])
         if 'dense' not in params:
             self.dense = True
         else:
             self.dense = ('True' == params['dense'])
-        self.valid = self.context.fetch_data() # need to revise
+        self.valid = self.context.fetch_data('is_valid') # need to revise
         Instruments_size = len(self.context.ii_list)
         self.hist = np.zeros((self.days, Instruments_size))
         self.hist.flat = np.nan

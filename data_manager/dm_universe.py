@@ -1,8 +1,8 @@
 from data_manager.dm_basedata import DataManagerCacheable
 
-class UniverseDataManager(DataManagerCacheable):
-    def __init__(self, mid, context, params):
-        super(UniverseDataManager, self).__init__(mid=mid, context=context, cache_path=params['cachePath'])
+class DataManagerUniverse(DataManagerCacheable):
+    def __init__(self, context, params):
+        super(DataManagerUniverse, self).__init__(context=context, params=params)
 
     def register_caches(self):
         pass

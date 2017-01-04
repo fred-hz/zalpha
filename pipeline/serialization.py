@@ -9,7 +9,7 @@ import os.path
 class Serializable(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self, cache_path):
+    def __init__(self, cache_path, **kwargs):
         self.serialize_list = []
         self.cache_path = cache_path
 
