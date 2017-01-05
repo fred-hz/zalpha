@@ -2,9 +2,9 @@ from operation.operation_base import OperationBase
 import numpy as np
 
 class OperationNeutral(OperationBase):
-    def __init__(self, params, context):
-        super().__init__(params, context)
-        self.group = context.fetch_data(params['group'])
+
+    def initialize(self):
+        self.group = self.context.fetch_data(self.params['group'])
 
     def after_day(self, di, alpha):
         # Should return alpha as a list

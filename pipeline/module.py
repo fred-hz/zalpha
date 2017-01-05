@@ -6,8 +6,13 @@ from abc import (
 class Module(object):
     __metaclass__ = ABCMeta
 
+    def __init__(self, params, context):
+        self.params = params
+        self.context = context
+
     @abstractmethod
     def initialize(self):
+        # Fetch data from context and identify value to variables
         raise NotImplementedError
 
     @abstractmethod

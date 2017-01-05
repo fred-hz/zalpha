@@ -3,34 +3,28 @@ from abc import (
     abstractmethod
 )
 from pipeline.serialization import Serializable
+from pipeline.module import Module
 
 
-class DataManagerBase(object):
+class DataManagerBase(Module):
     __metaclass__ = ABCMeta
 
-    def __init__(self, params, context, **kwargs):
-        # Always run DataManagerBase.__init__() at the end of the __init__() function of sub class
-        self.context = context
-
+    def __init__(self, params, context):
+        super(DataManagerBase, self).__init__(params, context)
         # Store data. In the format of {data_name: data}
         self.data = {}
 
         # Store dependency. In the format of [data_name]
         self.dependency = []
 
-        self.start_date = context.start_date
-        self.end_date = context.end_date
+        self.start_date = self.context.start_date
+        self.end_date = self.context.end_date
 
-        self.initialize()
         self.register_dependency()
-        self.register_data_names()
+        self.register_data()
 
     @abstractmethod
     def initialize(self):
-        """
-        Define all the vars used. Mainly need to claim their size based on numpy.ndarray
-        :return:
-        """
         raise NotImplementedError
 
     def _compute(self):
@@ -51,6 +45,9 @@ class DataManagerBase(object):
         """
         raise NotImplementedError
 
+    def after_day(self, di, alpha):
+        pass
+
     @abstractmethod
     def register_dependency(self):
         """
@@ -64,9 +61,9 @@ class DataManagerBase(object):
         self.dependency.append(data_name)
 
     @abstractmethod
-    def register_data_names(self):
+    def register_data(self):
         """
-        Register data into globals
+        Register data into context
         :return:
         """
         raise NotImplementedError
@@ -95,8 +92,7 @@ class DataManagerCacheable(DataManagerBase, Serializable):
     """
     __metaclass__ = ABCMeta
 
-    def __init__(self, params, context, **kwargs):
-        # Always run DataManageCacheable.__init__() at the end of __init__() function of sub class
+    def __init__(self, params, context):
         super(DataManagerCacheable, self).__init__(params=params, context=context, cache_path=params['cachePath'])
         self.register_caches()
 
@@ -108,11 +104,15 @@ class DataManagerCacheable(DataManagerBase, Serializable):
         #     self.load(self.cache_path)
 
     @abstractmethod
+    def initialize(self):
+        raise NotImplementedError
+
+    @abstractmethod
     def register_caches(self):
         raise NotImplementedError
 
     @abstractmethod
-    def register_data_names(self):
+    def register_data(self):
         raise NotImplementedError
 
     @abstractmethod

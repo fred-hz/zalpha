@@ -2,8 +2,6 @@ from operation.operation_base import OperationBase
 import util
 
 class OperationTruncate(OperationBase):
-    def __init__(self, params, context):
-        super().__init__(params, context)
 
     def initialize(self):
         self.maxPercent = float(self.params['maxPercent'])

@@ -7,15 +7,17 @@ import re
 
 
 class DataManagerBaseData(DataManagerCacheable):
-    def __init__(self, context, params):
-        print("DataManagerBaseData :: DataManagerBaseData initialize!")
-        self.context = context
-        self.params = params
-        self.data_path = params['dataPath']
-        self.sector_path = params['sectorPath']
 
-        di_size = len(context.di_list)
-        ii_size = len(context.ii_list)
+    def initialize(self):
+        # Fetch data from context and identify values to variables
+        pass
+
+    def register_data(self):
+        self.data_path = self.params['dataPath']
+        self.sector_path = self.params['sectorPath']
+
+        di_size = len(self.context.di_list)
+        ii_size = len(self.context.ii_list)
 
         self.isOpen = np.ndarray((di_size, ii_size), dtype=bool)
         self.isST = np.ndarray((di_size, ii_size), dtype=bool)
@@ -26,12 +28,24 @@ class DataManagerBaseData(DataManagerCacheable):
         self.volume = np.ndarray((di_size, ii_size), dtype=float)
         self.amount = np.ndarray((di_size, ii_size), dtype=float)
         self.turnover = np.ndarray((di_size, ii_size), dtype=float)
-        self.cap = np.ndarray((di_size, ii_size), dtype=float) #流通市值
+        self.cap = np.ndarray((di_size, ii_size), dtype=float)  # 流通市值
         self.vwap = np.ndarray((di_size, ii_size), dtype=float)
         self.accumAdjFactor = np.ndarray((di_size, ii_size), dtype=float)
-        self.sharesout = np.ndarray((di_size, ii_size), dtype=float) #流通股数
+        self.sharesout = np.ndarray((di_size, ii_size), dtype=float)  # 流通股数
 
-        super(DataManagerBaseData, self).__init__(context=context, params=params, cache_path=params['cachePath'])
+        self.register_single_data('isOpen', self.isOpen)
+        self.register_single_data('isST', self.isST)
+        self.register_single_data('open', self.open)
+        self.register_single_data('high', self.high)
+        self.register_single_data('low', self.low)
+        self.register_single_data('close', self.close)
+        self.register_single_data('volume', self.volume)
+        self.register_single_data('amount', self.amount)
+        self.register_single_data('turnover', self.turnover)
+        self.register_single_data('cap', self.cap)
+        self.register_single_data('vwap', self.vwap)
+        self.register_single_data('adjfactor', self.accumAdjFactor)
+        self.register_single_data('sharesout', self.sharesout)
 
     def register_caches(self):
         self.register_serialization('isOpen')
@@ -47,24 +61,6 @@ class DataManagerBaseData(DataManagerCacheable):
         self.register_serialization('vwap')
         self.register_serialization('accumAdjFactor')
         self.register_serialization('sharesout')
-
-    def initialize(self):
-        pass
-
-    def register_data_names(self):
-        self.register_single_data('isOpen', self.isOpen)
-        self.register_single_data('isST', self.isST)
-        self.register_single_data('open', self.open)
-        self.register_single_data('high', self.high)
-        self.register_single_data('low', self.low)
-        self.register_single_data('close', self.close)
-        self.register_single_data('volume', self.volume)
-        self.register_single_data('amount', self.amount)
-        self.register_single_data('turnover', self.turnover)
-        self.register_single_data('cap', self.cap)
-        self.register_single_data('vwap', self.vwap)
-        self.register_single_data('adjfactor', self.accumAdjFactor)
-        self.register_single_data('sharesout', self.sharesout)
 
     def compute_day(self, di):
         date = self.context.di_list[di]

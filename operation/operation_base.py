@@ -8,14 +8,13 @@ from decorator import assert_exist
 class OperationBase(Module):
     __metaclass__ = ABCMeta
 
-    def __init__(self, params, context):
-        # params is supposed to be a list
-        self.params = params
-        self.context = context
-
     @abstractmethod
     def initialize(self):
         raise NotImplementedError
+
+    def compute_day(self, di):
+        # Operations don't need to compute_day()
+        pass
 
     @abstractmethod
     def after_day(self, di, alpha):
