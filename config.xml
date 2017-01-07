@@ -58,11 +58,14 @@
 
 		<!-- Performance Modules -->
         <Performance>
-		    <Module id="Performance" class="performance.performance.Performance"  longmode="" shortmode="" longcapital="" shortcapital="" tax="0." fee="0."/>
+		    <Module id="Performance" class="performance.performance.Performance" longmode="" shortmode="" longcapital="" shortcapital="" tax="0." fee="0."/>
         </Performance>
     </Modules>
 
 	<!-- delay? method? ndays? -->
+    <!-- Modules will be ran according to their dependencies.
+         For some modules if there exists no dependencies, they would be ran in order according to this xml
+     -->
 	<AlphaTest id="zalpha" delay="1" method="1" ndays="5" startDate="20100101" endDate="20141231">
 		<Environment moduleId="envStandard"/>
 		<Alphas>

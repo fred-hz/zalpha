@@ -3,33 +3,18 @@ from abc import (
     abstractmethod
 )
 import numpy as np
+from pipeline.module import Module
 
-
-class AlphaBase(object):
+class AlphaBase(Module):
     __metaclass__ = ABCMeta
 
     def __init__(self, params, context):
-        self.params = params
-        #self.alpha = np.array(len(ticker2ii))###
+        super(AlphaBase, self).__init__(params, context)
+        self.alpha = []
+
+    def get_alpha(self):
+        return self.alpha
 
     @abstractmethod
-    def initialize(self):
-        """
-        Set vars of alpha from dm
-        :return:
-        """
+    def compute_day(self, di):
         raise NotImplementedError
-
-    @abstractmethod
-    def generate(self, di):
-        """
-        Staff to be done on date di
-        :param di:
-        :return:
-        """
-        raise NotImplementedError
-
-    def compute(self):
-        # for di in di2date.keys():
-        #     self.generate(di)
-        pass
