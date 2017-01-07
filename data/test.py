@@ -1,8 +1,13 @@
-class A(object):
-    def __init__(self, a):
-        self.a = a
-        self.a.append(1)
+class test:
+    def __init__(self):
+        print(1)
 
-a = []
-obj = A(a)
-print(a)
+    def one(self):
+        self.x = 2
+
+    def two(self):
+        print(self.x)
+
+y = test()
+y.one()
+y.two()
