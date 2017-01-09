@@ -6,7 +6,7 @@ class OperationNeutral(OperationBase):
     def initialize(self):
         self.group = self.context.fetch_data(self.params['group'])
 
-    def after_day(self, di, alpha):
+    def compute_day(self, di, alpha):
         # Should return alpha as a list
         # neut_data = {}
         # map(lambda a: neut_data.setdefault(a, (np.where(self.group[di] == a))[0]), set(self.group[di]))

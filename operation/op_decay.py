@@ -19,7 +19,7 @@ class OperationDecay(OperationBase):
         self.diff = np.zeros(Instruments_size)
         self.diff.flat = np.nan
 
-    def after_day(self, di, alpha):
+    def compute_day(self, di, alpha):
         # Should return alpha as a list
         self.sum -= self.diff
         tmp = np.where(self.num == self.days)

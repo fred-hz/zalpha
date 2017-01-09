@@ -10,7 +10,7 @@ class OperationPower(OperationBase):
         else:
             self.do_rank = ('True' == self.params['dorank'])
 
-    def after_day(self, di, alpha):
+    def compute_day(self, di, alpha):
         # Should return alpha as a list
         if self.do_rank:
             util.power(alpha, self.exp)

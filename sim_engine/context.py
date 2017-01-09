@@ -1,4 +1,5 @@
 class Context(object):
+    # Every test case need one singular context
 
     def __init__(self):
         """
@@ -15,6 +16,8 @@ class Context(object):
 
         self.start_date = None
         self.end_date = None
+        self.start_di = None
+        self.end_di = None
 
     def set_di_list(self, _list):
         self.di_list = _list

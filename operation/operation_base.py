@@ -9,13 +9,8 @@ class OperationBase(Module):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def initialize(self):
+    def compute_day(self, di, alpha):
         raise NotImplementedError
 
-    def compute_day(self, di):
-        # Operations don't need to compute_day()
+    def register_dependencies(self):
         pass
-
-    @abstractmethod
-    def after_day(self, di, alpha):
-        raise NotImplementedError
