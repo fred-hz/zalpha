@@ -1,12 +1,21 @@
 import numpy as np
-from pipeline.module import Module
+from pipeline.module import DailyLoopModule
 
-class Performance(Module):
+class Performance(DailyLoopModule):
 
-    def register_dependencies(self):
-        self.register_single_dependency('adj_close')
-        self.register_single_dependency('adj_vwap')
-        self.register_single_dependency('ZZ500')
+    def start_day(self, di):
+        pass
+
+    def end_day(self, di):
+        pass
+
+    def intro_day(self, di):
+        pass
+
+    def dependencies(self):
+        self.register_dependency('adj_close')
+        self.register_dependency('adj_vwap')
+        self.register_dependency('ZZ500')
 
     def initialize(self):
         self.adj_close = self.context.fetch_data('adj_close')

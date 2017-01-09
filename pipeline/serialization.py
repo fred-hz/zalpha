@@ -9,11 +9,22 @@ import os.path
 class Serializable(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self, cache_path, **kwargs):
+    def __init__(self, cache_path):
         self.serialize_list = []
         self.cache_path = cache_path
+        self.caches()
 
-    def register_serialization(self, name):
+        # To record if the single data is loaded
+        self.data_loaded = {}
+        for name in self.serialize_list:
+            self.data_loaded[name] = False
+
+    @abstractmethod
+    def caches(self):
+        # call self.register_cache()
+        raise NotImplementedError
+
+    def register_cache(self, name):
         if name in self.serialize_list:
             raise Exception('Duplicated register for {name}'.format(
                 name=name
@@ -48,16 +59,11 @@ class Serializable(object):
                 name=name
             ))
         setattr(self, name, obj)
-        return obj
+        self.data_loaded[name] = True
 
-    # def load(self, cache_path):
-    #     for name in self.serialize_list:
-    #         var = pickle.load(file=os.path.join(cache_path, name))
-    #         if var is None:
-    #             raise Exception('Loading None object {name}'.format(
-    #                 name=name
-    #             ))
-    #         setattr(self, name, var)
+    def load_all_data(self, cache_path):
+        for name in self.serialize_list:
+            self.load_single_data(cache_path, name)
 
     # def load_data(self):
     #     if self.cache_exist(self.cache_path):

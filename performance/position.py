@@ -39,9 +39,9 @@ class AlphaPosition(Position):
         ii_size = len(self.context.ii_list)
         self.history_position = np.ndarray((di_size, ii_size))
 
-    def register_dependencies(self):
-        self.register_single_dependency('adj_close')
-        self.register_single_dependency('adj_vwap')
+    def dependencies(self):
+        self.register_dependency('adj_close')
+        self.register_dependency('adj_vwap')
 
     '''------------------------to be implemented-----------------------------'''
     def process_day(self, di):
@@ -75,9 +75,9 @@ class AlphaTopPosition(Position):
 
         self.topN = self.params['topN']
 
-    def register_dependencies(self):
-        self.register_single_dependency('adj_close')
-        self.register_single_dependency('adj_vwap')
+    def dependencies(self):
+        self.register_dependency('adj_close')
+        self.register_dependency('adj_vwap')
 
     '''------------------------to be implemented-----------------------------'''
     def process_day(self, di):
@@ -107,8 +107,8 @@ class IndexPosition(Position):
 
         self.index_price = self.context.fetch_data(self.index_name)
 
-    def register_dependencies(self):
-        self.register_single_dependency(self.index_name)
+    def dependencies(self):
+        self.register_dependency(self.index_name)
 
     '''------------------------to be implemented-----------------------------'''
     def process_day(self, di):

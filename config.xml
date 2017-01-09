@@ -66,20 +66,36 @@
     <!-- Modules will be ran according to their dependencies.
          For some modules if there exists no dependencies, they would be ran in order according to this xml
      -->
-	<AlphaTest id="zalpha" delay="1" method="1" ndays="5" startDate="20100101" endDate="20141231">
-		<Environment moduleId="envStandard"/>
-		<Alphas>
-            <!-- Two Alpha tags can not have the same alphaId value -->
-            <Alpha alphaId="AlphaSample" universeId="TOP500"/>
-        </Alphas>
-		<Operations>
-			<Operation moduleId="AlphaOpPower" exp="3.0"/>
-			<Operation moduleId="AlphaOpDecay" days="10"/>
-			<Operation moduleId="AlphaOpTruncate" maxPercent="0.1"/>
-			<Operation moduleId="AlphaOpNeutral" group="industry"/>
-		</Operations>
-		<Performance moduleId="Performance"/>
-	</AlphaTest>
+    <Sim startDate="20100101" endDate="20141230">
+        <Case id="zalpha" delay="1" method="1" ndays="5">
+            <Environment moduleId="envStandard"/>
+            <Universe moduleId="TOP500"/>
+            <Alpha moduleId="AlphaSample"/>
+            <Operations>
+                <Operation moduleId="AlphaOpPower" exp="3.0"/>
+			    <Operation moduleId="AlphaOpDecay" days="10"/>
+			    <Operation moduleId="AlphaOpTruncate" maxPercent="0.1"/>
+			    <Operation moduleId="AlphaOpNeutral" group="industry"/>
+            </Operations>
+            <Performance moduleId="Performance"/>
+        </Case>
+
+    </Sim>
+
+	<!--<AlphaTest id="zalpha" delay="1" method="1" ndays="5" startDate="20100101" endDate="20141231">-->
+		<!--<Environment moduleId="envStandard"/>-->
+		<!--<Alphas>-->
+            <!--&lt;!&ndash; Two Alpha tags can not have the same alphaId value &ndash;&gt;-->
+            <!--<Alpha alphaId="AlphaSample" universeId="TOP500"/>-->
+        <!--</Alphas>-->
+		<!--<Operations>-->
+			<!--<Operation moduleId="AlphaOpPower" exp="3.0"/>-->
+			<!--<Operation moduleId="AlphaOpDecay" days="10"/>-->
+			<!--<Operation moduleId="AlphaOpTruncate" maxPercent="0.1"/>-->
+			<!--<Operation moduleId="AlphaOpNeutral" group="industry"/>-->
+		<!--</Operations>-->
+		<!--<Performance moduleId="Performance"/>-->
+	<!--</AlphaTest>-->
 
 	<!--
 	<Portfolio moduleId="Portfolio" id="zalpha" booksize="20e6" homecurrency="CNY" combinationId="AlphaComboSample" doCombo="False">

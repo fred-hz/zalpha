@@ -1,19 +1,16 @@
-from .dm_base import (
-    DataManagerBase,
-    DataManagerCacheable
-)
+from data_manager.dm_base import DataManagerBase
 import numpy as np
 import re
 
 
-class DataManagerBaseData(DataManagerCacheable):
+class DataManagerBaseData(DataManagerBase):
 
     def initialize(self):
         # Fetch data from context and identify values to variables
         self.data_path = self.params['dataPath']
         self.sector_path = self.params['sectorPath']
 
-    def register_data(self):
+    def provide_data(self):
         di_size = len(self.context.di_list)
         ii_size = len(self.context.ii_list)
 
@@ -47,56 +44,55 @@ class DataManagerBaseData(DataManagerCacheable):
         self.subindustryIdx = []
         self.subindustryName = []
 
-        self.register_single_data('isOpen', self.isOpen)
-        self.register_single_data('CName', self.CName)
-        self.register_single_data('open', self.open)
-        self.register_single_data('high', self.high)
-        self.register_single_data('low', self.low)
-        self.register_single_data('close', self.close)
-        self.register_single_data('volume', self.volume)
-        self.register_single_data('amount', self.amount)
-        self.register_single_data('turnover', self.turnover)
-        self.register_single_data('cap', self.cap)
-        self.register_single_data('vwap', self.vwap)
-        self.register_single_data('adjfactor', self.accumAdjFactor)
-        self.register_single_data('sharesout', self.sharesout)
+        self.register_data('isOpen', self.isOpen)
+        self.register_data('CName', self.CName)
+        self.register_data('open', self.open)
+        self.register_data('high', self.high)
+        self.register_data('low', self.low)
+        self.register_data('close', self.close)
+        self.register_data('volume', self.volume)
+        self.register_data('amount', self.amount)
+        self.register_data('turnover', self.turnover)
+        self.register_data('cap', self.cap)
+        self.register_data('vwap', self.vwap)
+        self.register_data('adjfactor', self.accumAdjFactor)
+        self.register_data('sharesout', self.sharesout)
         
-        self.register_single_data('sector', self.sector)
-        self.register_single_data('sectorIdx', self.sectorIdx)
-        self.register_single_data('sectorName', self.sectorName)
-        self.register_single_data('industry', self.industry)
-        self.register_single_data('industryIdx', self.industryIdx)
-        self.register_single_data('industryName', self.industryName)
-        self.register_single_data('subindustry', self.subindustry)
-        self.register_single_data('subindustryIdx', self.subindustryIdx)
-        self.register_single_data('subindustryName', self.subindustryName)
+        self.register_data('sector', self.sector)
+        self.register_data('sectorIdx', self.sectorIdx)
+        self.register_data('sectorName', self.sectorName)
+        self.register_data('industry', self.industry)
+        self.register_data('industryIdx', self.industryIdx)
+        self.register_data('industryName', self.industryName)
+        self.register_data('subindustry', self.subindustry)
+        self.register_data('subindustryIdx', self.subindustryIdx)
+        self.register_data('subindustryName', self.subindustryName)
 
 
-    def register_caches(self):
-        self.register_serialization('isOpen')
-        self.register_serialization('CName')
-        self.register_serialization('open')
-        self.register_serialization('high')
-        self.register_serialization('low')
-        self.register_serialization('close')
-        self.register_serialization('volume')
-        self.register_serialization('amount')
-        self.register_serialization('turnover')
-        self.register_serialization('cap')
-        self.register_serialization('vwap')
-        self.register_serialization('accumAdjFactor')
-        self.register_serialization('sharesout')
+    def caches(self):
+        self.register_cache('isOpen')
+        self.register_cache('CName')
+        self.register_cache('open')
+        self.register_cache('high')
+        self.register_cache('low')
+        self.register_cache('close')
+        self.register_cache('volume')
+        self.register_cache('amount')
+        self.register_cache('turnover')
+        self.register_cache('cap')
+        self.register_cache('vwap')
+        self.register_cache('accumAdjFactor')
+        self.register_cache('sharesout')
 
-        self.register_serialization('sector')
-        self.register_serialization('sectorIdx')
-        self.register_serialization('sectorName')
-        self.register_serialization('industry')
-        self.register_serialization('industryIdx')
-        self.register_serialization('industryName')
-        self.register_serialization('subindustry')
-        self.register_serialization('subindustryIdx')
-        self.register_serialization('subindustryName')
-
+        self.register_cache('sector')
+        self.register_cache('sectorIdx')
+        self.register_cache('sectorName')
+        self.register_cache('industry')
+        self.register_cache('industryIdx')
+        self.register_cache('industryName')
+        self.register_cache('subindustry')
+        self.register_cache('subindustryIdx')
+        self.register_cache('subindustryName')
         
     def compute_day(self, di):
         date = self.context.di_list[di]
@@ -248,8 +244,7 @@ class DataManagerBaseData(DataManagerCacheable):
                     self.subindustryIdx.append(subindustrySymbol)
                     self.subindustryName.append(items[17])
                 self.subindustry[di][ii] = mark
-
                 
-    def register_dependency(self):
+    def dependencies(self):
         # Do not need dependencies in DataManagerBaseData
         pass

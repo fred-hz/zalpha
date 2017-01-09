@@ -1,20 +1,24 @@
-from data_manager.dm_basedata import DataManagerCacheable
+from pipeline.module import DataPortalModule
+from data_manager.dm_base import DataManagerBase
+import numpy as np
 
-class DataManagerUniverse(DataManagerCacheable):
-    def __init__(self, context, params):
-        super(DataManagerUniverse, self).__init__(context=context, params=params)
-
-    def register_caches(self):
+class DataManagerUniverse(DataManagerBase):
+    def caches(self):
         pass
 
-    def initialize(self):
-        pass
+    def dependencies(self):
+        self.register_dependency('is_open')
 
-    def register_data_names(self):
-        pass
+    def provide_data(self):
+        di_size = len(self.context.di_list)
+        ii_size = len(self.context.ii_list)
+
+        self.is_valid = np.ndarray((di_size, ii_size))
+
+        self.register_data('is_valid', self.is_valid)
 
     def compute_day(self, di):
         pass
 
-    def register_dependency(self):
+    def initialize(self):
         pass

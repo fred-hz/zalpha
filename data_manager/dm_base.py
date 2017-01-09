@@ -4,17 +4,16 @@ from abc import (
 )
 from pipeline.serialization import Serializable
 from pipeline.module import (
-    DataPortalModule,
-    DataPortalModuleCacheable
+    DataPortalModule
 )
 
 class DataManagerBase(DataPortalModule):
-    def __init__(self, params, context):
-        super(DataManagerBase, self).__init__(params, context)
-
     __metaclass__ = ABCMeta
 
-
+    def __init__(self, params, context):
+        super(DataManagerBase, self).__init__(params, context)
+        self.register_dependency('di_list')
+        self.register_dependency('ii_list')
 
 
 # class DataManagerBase(Model):
@@ -93,55 +92,55 @@ class DataManagerBase(DataPortalModule):
 #     def get_data(self, name):
 #         return self.data[name]
 
-class DataManagerCacheable(DataManagerBase, Serializable):
-
-    """
-    Interface to be impelemented by data manager subclass.
-    The interface is used when data are derived from raw data and stored in cache file.
-    When cache file exists, data manager will directly read from it and not compute.
-    Could cache multi matrix at once. Data in self.data will be cached.
-    """
-    __metaclass__ = ABCMeta
-
-    def __init__(self, params, context):
-        super(DataManagerCacheable, self).__init__(params=params, context=context, cache_path=params['cachePath'])
-        self.register_caches()
-
-    def compute(self):
-        if not self.cache_exist(self.cache_path):
-            self._compute()
-            self.dump(self.cache_path)
-        # else:
-        #     self.load(self.cache_path)
-
-    @abstractmethod
-    def initialize(self):
-        raise NotImplementedError
-
-    @abstractmethod
-    def register_caches(self):
-        raise NotImplementedError
-
-    @abstractmethod
-    def register_data(self):
-        raise NotImplementedError
-
-    @abstractmethod
-    def register_dependency(self):
-        raise NotImplementedError
-
-    @abstractmethod
-    def compute_day(self, di):
-        raise NotImplementedError
-
-    def get_data(self, name):
-        if self.data[name] is not None:
-            return self.data[name]
-        elif self.cache_exist(self.cache_path):
-            self.data[name] = self.load_single_data(cache_path=self.cache_path, name=name)
-            return self.data[name]
-        else:
-            raise Exception('data {name} can not be found in calculation or cache'.format(
-                name=name
-            ))
+# class DataManagerCacheable(DataManagerBase, Serializable):
+#
+#     """
+#     Interface to be impelemented by data manager subclass.
+#     The interface is used when data are derived from raw data and stored in cache file.
+#     When cache file exists, data manager will directly read from it and not compute.
+#     Could cache multi matrix at once. Data in self.data will be cached.
+#     """
+#     __metaclass__ = ABCMeta
+#
+#     def __init__(self, params, context):
+#         super(DataManagerCacheable, self).__init__(params=params, context=context, cache_path=params['cachePath'])
+#         self.register_caches()
+#
+#     def compute(self):
+#         if not self.cache_exist(self.cache_path):
+#             self._compute()
+#             self.dump(self.cache_path)
+#         # else:
+#         #     self.load(self.cache_path)
+#
+#     @abstractmethod
+#     def initialize(self):
+#         raise NotImplementedError
+#
+#     @abstractmethod
+#     def register_caches(self):
+#         raise NotImplementedError
+#
+#     @abstractmethod
+#     def register_data(self):
+#         raise NotImplementedError
+#
+#     @abstractmethod
+#     def register_dependency(self):
+#         raise NotImplementedError
+#
+#     @abstractmethod
+#     def compute_day(self, di):
+#         raise NotImplementedError
+#
+#     def get_data(self, name):
+#         if self.data[name] is not None:
+#             return self.data[name]
+#         elif self.cache_exist(self.cache_path):
+#             self.data[name] = self.load_single_data(cache_path=self.cache_path, name=name)
+#             return self.data[name]
+#         else:
+#             raise Exception('data {name} can not be found in calculation or cache'.format(
+#                 name=name
+#             ))
 
