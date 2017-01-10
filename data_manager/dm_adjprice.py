@@ -1,19 +1,27 @@
 from pipeline.module import DailyLoopDataPortalModule
 import numpy as np
-import re
 
 
 class DataManagerAdjPrice(DailyLoopDataPortalModule):
-    def start_day(self, di):
+    def initialize(self):
+        self.backdays = self.context.fetch_data('backdays')
+        self.rawopen = self.context.fetch_data('open')
+        self.rawhigh = self.context.fetch_data('high')
+        self.rawlow = self.context.fetch_data('low')
+        self.rawclose = self.context.fetch_data('close')
+        self.rawvwap = self.context.fetch_data('vwap')
+        self.accumAdjFactor = self.context.fetch_data('accumAdjFactor')
+
+    def build(self):
         pass
 
-    def end_day(self, di):
+    def start_day(self, di):
         pass
 
     def intro_day(self, di):
         pass
 
-    def build(self):
+    def end_day(self, di):
         pass
 
     def dependencies(self):
@@ -41,12 +49,3 @@ class DataManagerAdjPrice(DailyLoopDataPortalModule):
         self.register_data('adj_close', self.close)
         self.register_data('adj_vwap', self.vwap)
         self.register_data('adj_ret', self.ret)
-
-    def initialize(self):
-        self.backdays = self.context.fetch_data('backdays')
-        self.rawopen = self.context.fetch_data('open')
-        self.rawhigh = self.context.fetch_data('high')
-        self.rawlow = self.context.fetch_data('low')
-        self.rawclose = self.context.fetch_data('close')
-        self.rawvwap = self.context.fetch_data('vwap')
-        self.accumAdjFactor = self.context.fetch_data('accumAdjFactor')
