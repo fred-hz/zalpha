@@ -117,7 +117,7 @@ class DataPortalModule(Module, DataProvider, Serializable):
         if not self.cache_exist(self.cache_path):
             self.build()
         if self.data_loaded[data_name] is False:
-            self.fetch_single_data(data_name)
+            self.load_single_data(data_name)
             return getattr(self, data_name)
 
 
