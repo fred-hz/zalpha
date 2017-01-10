@@ -1,9 +1,9 @@
 from alpha.alpha_base import AlphaBase
 
 class AlphaSample(AlphaBase):
-    def register_dependencies(self):
-        self.register_single_dependency('open')
-        self.register_single_dependency('high')
+    def dependencies(self):
+        self.register_dependency('open')
+        self.register_dependency('high')
 
     def initialize(self):
         self.open = self.context.fetch_data('open')

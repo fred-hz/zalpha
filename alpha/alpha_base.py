@@ -3,18 +3,25 @@ from abc import (
     abstractmethod
 )
 import numpy as np
-from pipeline.module import Module
+from pipeline.module import DailyLoopModule
 
-class AlphaBase(Module):
+class AlphaBase(DailyLoopModule):
     __metaclass__ = ABCMeta
 
     def __init__(self, params, context):
         super(AlphaBase, self).__init__(params, context)
-        self.alpha = []
-
-    def get_alpha(self):
-        return self.alpha
+        self.alpha = self.context.alpha
 
     @abstractmethod
     def compute_day(self, di):
         raise NotImplementedError
+
+    def start_day(self, di):
+        pass
+
+    def end_day(self, di):
+        self.compute_day(di)
+
+    def intro_day(self, di):
+        pass
+
