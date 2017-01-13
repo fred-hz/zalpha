@@ -15,7 +15,7 @@ class DataManagerUniverse(DataManagerBase):
 
         self.is_valid = np.ndarray((di_size, ii_size))
 
-        self.register_data('is_valid', self.is_valid)
+        self.register_data(self.params['id'], self.is_valid)
 
     def compute_day(self, di):
         pass

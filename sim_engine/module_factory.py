@@ -1,11 +1,10 @@
 import xml.etree.ElementTree as ET
 
 class ModuleFactory(object):
-    def __init__(self, context):
+    def __init__(self):
         # Save modules. In the format of {mid: {variables values...}}
         self.modules = {}
         self.required_columns = ['class']
-        self.context = context
 
     def register_module(self, mid, params):
         """
@@ -28,11 +27,12 @@ class ModuleFactory(object):
 
         self.modules[mid] = params
 
-    def create_module(self, mid, params=None):
+    def create_module(self, mid, context, params=None):
         """
         Create a module object according to the class name of module mid.
         :param mid: Module id in config.xml
         :param params: New paras from config.xml asides from already registered parameters
+        :param context:
         :return:
         """
         class_name = self.modules[mid]['class']
@@ -49,7 +49,7 @@ class ModuleFactory(object):
         if params is not None and len(params) != 0:
             new_params.update(params)
 
-        return module_class(params=new_params, context=self.context)
+        return module_class(params=new_params, context=context)
 
     def __str__(self):
         return str(self.modules)
@@ -57,4 +57,4 @@ class ModuleFactory(object):
 
 if __name__ == '__main__':
     module_factory = ModuleFactory()
-    module_factory.create_module('alpha.alpha_base.AlphaBase')
+    # module_factory.create_module('alpha.alpha_base.AlphaBase')

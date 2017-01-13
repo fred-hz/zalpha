@@ -1,30 +1,34 @@
 from pipeline.serialization import Serializable
-from pipeline.module import DataPortalModuleCacheable
+from pipeline.module import (
+    DataProvider
+)
 import os, re
 
-class EnvStandard(DataPortalModuleCacheable):
-    def initialize(self):
-        # Does not load data from context
+class EnvStandard(DataProvider, Serializable):
+    def __init__(self, context, params):
+        DataProvider.__init__(self)
+        Serializable.__init__(self, cache_path=params['cachePath'])
+
+    def build(self):
         pass
 
-    def compute_day(self, di):
-        # Suppose that the cache already exists in environment and calculation is not needed
-        pass
+    def fetch_single_data(self, data_name):
+        if not self.cache_exist(self.cache_path):
+            self.build()
+        if self.data_loaded[data_name] is False:
+            self.load_single_data(self.cache_path, data_name)
+            return getattr(self, data_name)
 
-    def register_dependencies(self):
-        # Environment doesn't depend on other data
-        pass
-
-    def register_data(self):
+    def provide_data(self):
         self.di_list = []
         self.ii_list = []
 
-        self.register_single_data('di_list', self.di_list)
-        self.register_single_data('ii_list', self.ii_list)
+        self.register_data('di_list', self.di_list)
+        self.register_data('ii_list', self.ii_list)
 
-    def register_caches(self):
-        self.register_serialization('di_list')
-        self.register_serialization('ii_list')
+    def caches(self):
+        self.register_cache('di_list')
+        self.register_cache('ii_list')
 
 
 # class EnvStandard(Serializable):

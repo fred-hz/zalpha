@@ -1,36 +1,46 @@
 import xml.etree.ElementTree as ET
 from sim_engine.module_factory import ModuleFactory
+from pipeline.module import (
+    DataProvider,
+    DataPortalModule,
+    DailyLoopDataPortalModule
+)
 from sim_engine.context import Context
+from sim_engine.run_case import RunCase
 import re
 import collections
 
 # Map between variable name in Engine and module tag name in config.xml
 # Tag name in config.xml : Variable name in Engine
-module_type_name_map = {
-    'Environment': 'Environment',
-    'Universe': 'Universe',
-    'Data': 'Data',
-    'Alpha': 'Alpha',
-    'Operation': 'Operation',
-    'Performance': 'Performance'
-}
+# module_type_name_map = {
+#     'Environment': 'Environment',
+#     'Universe': 'Universe',
+#     'Data': 'Data',
+#     'Alpha': 'Alpha',
+#     'Operation': 'Operation',
+#     'Performance': 'Performance'
+# }
 
 class Engine(object):
     def __init__(self, config_path):
         self.config_path = config_path
 
-        self.context = Context()
         self.constants = {}
         self.paths = {}
+        self.modules = {}
         self.xml_structure = {}
 
-        self.module_factory = ModuleFactory(context=self.context)
+        self.module_factory = ModuleFactory()
 
-        self.environment_module = None
-        self.performance_module = None
-        self.alpha_modules = {}
-        self.universe_modules = {}
-        self.operation_modules = collections.OrderedDict()
+        self.globals = Context()
+
+        # In the format of {'mid1': ['data1', 'data2'], ...}
+        self.data_source = {}
+        # In the format of {'mid1': ['dependency1', 'dependency2'], ...}
+        self.data_dependency = {}
+        # In the format of {'mid1': module_instance, ...}
+        self.data_portal_modules = {}
+        self.daily_data_portal_modules = {}
 
     def parse_config(self):
         tree = ET.parse(self.config_path)
@@ -41,6 +51,21 @@ class Engine(object):
         engine._parse_path()
         engine._parse_constant()
         engine._parse_modules()
+
+    def load_environment(self):
+        """
+        Load di_list and ii_list into self.globals
+        :return:
+        """
+        environment_module = self.xml_structure['Environment']
+        environment = self.module_factory.create_module(mid=environment_module['moduleId'],
+                                                        context=self.globals,
+                                                        params=environment_module)
+        self.globals.di_list = environment.fetch_single_data('di_list')
+        self.globals.ii_list = environment.fetch_single_data('ii_list')
+        # For test, do the followings:
+        self.globals.di_list = ['20100301', '20100302']
+        self.globals.ii_list = ['600001', '600002']
 
     @staticmethod
     def _node_is_collection(node):
@@ -91,80 +116,116 @@ class Engine(object):
 
     def _parse_modules(self):
         self.modules = self.xml_structure['Modules']
-
-        for module_type_name in module_type_name_map.keys():
-            module_list_by_type = self.modules[module_type_name]
-            for module in module_list_by_type:
-                self._adjust_path(module)
-                self.module_factory.register_module(mid=module['id'], params=module)
+        for module in self.modules:
+            self._adjust_path(module)
+            self.module_factory.register_module(mid=module['id'], params=module)
 
     def _parse_path(self):
         self.paths = self.xml_structure['Paths']
 
     def _parse_constant(self):
         self.constants = self.xml_structure['Constants']
-        for key in self.constants.keys():
-            self.context.register_constant(key, self.constants[key])
+        # for key in self.constants.keys():
+        #     self.context.register_constant(key, self.constants[key])
 
-    def preload_modules(self, sim_config):
+    def analyze_dependency(self, xml_structure):
         """
-        Create instance of declared modules in AlphaTest and all Data modules in config.
-        However, modules are not ran here.
-        :param sim_config:
+        Analyze dependencies between data portal modules and create instance of DataPortalModules
+        :param xml_structure:
         :return:
         """
-        config = sim_config.copy()
-        environment = config['Environment']
-        performance = config['Performance']
-        alpha_universe_list = config['Alphas']
-        operations_list = config['Operations']
+        modules = xml_structure['Modules']
+        for module in modules:
+            mid = module['id']
+            module = self.module_factory.create_module(mid=mid, context=self.globals, params=None)
+            self.data_dependency[mid] = module.dependency
+            if isinstance(module, DataProvider):
+                self.data_source[mid] = module.data.keys()
+                if isinstance(module, DataPortalModule):
+                    self.data_portal_modules[mid] = module
+                elif isinstance(module, DailyLoopDataPortalModule):
+                    self.daily_data_portal_modules[mid] = module
+                else:
+                    raise Exception('Unrecognized data module {id}'.format(id=mid))
 
-        environment_id = environment['moduleId']
-        environment.pop('moduleId')
-        self.environment_module = self.module_factory.create_module(mid=environment_id,
-                                                                    params=environment)
+        print(self.data_source)
+        print(self.data_dependency)
 
-        performance_id = performance['moduleId']
-        performance.pop('moduleId')
-        self.performance_module = self.module_factory.create_module(mid=performance_id,
-                                                                    params=performance)
+    def load_data(self, name):
+        if self.globals.has_data(name):
+            return
 
-        for instance in alpha_universe_list:
-            alpha_id = instance['alphaId']
-            universe_id = instance['universeId']
-            del instance['alphaId']
-            del instance['universeId']
-            alpha_module = self.module_factory.create_module(mid=alpha_id,
-                                                             params=instance)
-            universe_module = self.module_factory.create_module(mid=universe_id,
-                                                                params=None)
-            self.alpha_modules[alpha_id] = alpha_module
-            self.universe_modules[universe_id] = universe_module
+        # Find module id for the name
+        mid = None
+        for module_id in self.data_source.keys():
+            if name in self.data_source[module_id]:
+                mid = module_id
+                break
+        if mid is None:
+            raise Exception('Module id {mid} not exist'.format(mid=mid))
 
-        for instance in operations_list:
-            operation_id = instance['moduleId']
-            del instance['moduleId']
-            operation_module = self.module_factory.create_module(mid=operation_id,
-                                                                 params=instance)
-            self.operation_modules[operation_id] = operation_module
-        print(self.alpha_modules)
+        # If the data is provided by a DataPortalModule instance,
+        # then we need to fetch the data directly or build the module.
+        if mid in self.data_portal_modules.keys():
+            module = self.data_portal_modules[mid]
+            if module.cache_exist():
+                self.globals.register_data(name, module.fetch_single_data(name))
+            else:
+                dependency = self.data_dependency[mid]
+                for data_name in dependency:
+                    self.load_data(data_name)
+                module.initialized()
+                module.build()
+        # If the data is provided by a DailyDataPortalModule instance,
+        # then we don't need to compute the data right now.
+        # Here build() is only a preparation logic for calculation
+        elif mid in self.daily_data_portal_modules.keys():
+            module = self.data_portal_modules[mid]
+            dependency = self.data_dependency[mid]
+            for data_name in dependency:
+                self.load_data(data_name)
+            module.initialize()
+            module.build()
 
-    def construct_dependency_tree(self):
-        pass
+    @staticmethod
+    def _set_add_list(_set, _list):
+        for item in _list:
+            _set.add(item)
+
+    def generate_run_case(self, xml_structure):
+        sim = xml_structure['Sim']
+        dependency = set()
+        for case_structure in sim:
+            case_id = case_structure['id']
+            case = RunCase(case_id=case_id)
+
+            universe_structure = case_structure['Universe']
+            universe_id = universe_structure['moduleId']
+
+            alpha_structure = case_structure['Alpha']
+            operations_structure = case_structure['Operations']
+            performance_structure = case_structure['Performance']
+
+            alpha_id = alpha_structure['moduleId']
+            performance_id = performance_structure['moduleId']
+
+            dependency.add(universe_id)
+            self._set_add_list()
 
     def sim(self):
-        sim_config = self.xml_structure['AlphaTest']
-        id = sim_config['id']
-        delay = sim_config['delay']
-        method = sim_config['method']
-        ndays = sim_config['ndays']
-        startDate = sim_config['startDate']
-        endDate = sim_config['endDate']
+        print(self.xml_structure)
+        sim_config = self.xml_structure['Sim']
 
-        self.context.start_date = startDate
-        self.context.end_date = endDate
+        self.load_environment()
+        print(sim_config)
+        self.analyze_dependency(self.xml_structure)
 
-        self.preload_modules(sim_config)
+        # self.analyze_dependency(self.xml_structure)
+
+        # self.context.start_date = startDate
+        # self.context.end_date = endDate
+
+        #self.preload_modules(sim_config)
 
 if __name__ == '__main__':
     engine = Engine('/Users/Onlyrabbit/PycharmProjects/zalpha/config.xml')

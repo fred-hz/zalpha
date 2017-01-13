@@ -10,6 +10,8 @@ class AlphaBase(DailyLoopModule):
 
     def __init__(self, params, context):
         super(AlphaBase, self).__init__(params, context)
+
+    def initialize(self):
         self.alpha = self.context.alpha
 
     @abstractmethod

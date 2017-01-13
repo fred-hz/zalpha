@@ -5,13 +5,15 @@ import re, os
 
 class DataManagerBaseData(DataManagerBase):
 
+    def initialize(self):
+        self.ticker_list = self.context.ii_list
+        self.date_list = self.context.di_list
+
     def __init__(self, params, context):
         super(DataManagerBaseData, self).__init__(params=params, context=context)
         # Fetch data from context and identify values to variables
         self.data_path = self.params['dataPath']
         self.sector_path = self.params['sectorPath']
-        self.ticker_list = self.context.ii_list
-        self.date_list = self.context.di_list
 
     def provide_data(self):
         di_size = len(self.context.di_list)

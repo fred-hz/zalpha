@@ -14,6 +14,7 @@ class Module(object):
 
         self.dependency = []
         self.dependencies()
+        print("Module Initialized")
 
     @abstractmethod
     def initialize(self):
@@ -31,6 +32,10 @@ class Module(object):
 
 class DailyLoopModule(Module):
     __metaclass__ = ABCMeta
+
+    def __init__(self, params, context):
+        super(DailyLoopModule, self).__init__(params, context)
+        print("DailyLoopModule Initialized.")
 
     @abstractmethod
     def start_day(self, di):
@@ -54,6 +59,7 @@ class DataProvider(object):
         # To change the real value of data, we need to change self.xxx
         self.data = {}
         self.provide_data()
+        print("DataProvider Initialized.")
 
     @abstractmethod
     def provide_data(self):
@@ -69,13 +75,14 @@ class DailyLoopDataPortalModule(DailyLoopModule, DataProvider):
 
     def __init__(self, params, context):
         super(DailyLoopDataPortalModule, self).__init__(params, context)
+        print("DailyLoopDataPortalModule Initialized.")
 
     @abstractmethod
     def build(self):
         # Just a preparing logic before daily loop begins
         raise NotImplementedError
 
-class DataPortalModule(Module, DataProvider, Serializable):
+class DataPortalModule(DataProvider, Module, Serializable):
     # Modules that runs before back-test daily loop.
     # Can be regarded as data preparing modules.
     # Provide data as well as depend on other data.
@@ -83,13 +90,21 @@ class DataPortalModule(Module, DataProvider, Serializable):
     __metaclass__ = ABCMeta
 
     def __init__(self, params, context):
-        super(DataPortalModule, self).__init__(params=params,
-                                               context=context,
-                                               cache_path=params['cachePath'])
+        if params is None:
+            cache_path = None
+        else:
+            cache_path = params['cachePath']
+        DataProvider.__init__(self)
+        Module.__init__(self, params, context)
+        Serializable.__init__(self, cache_path)
+
+        print("DataPortalModule Initialized.")
 
     def build(self):
-        start_di = self.context.start_di
-        end_di = self.context.end_di
+        start_date = self.params['startDate']
+        end_date = self.params['endDate']
+        start_di = self.context.date_idx(start_date)
+        end_di = self.context.date_idx(end_date)
         for di in range(start_di, end_di+1):
             self.compute_day(di)
         self.dump(self.cache_path)
@@ -100,6 +115,7 @@ class DataPortalModule(Module, DataProvider, Serializable):
     def compute_day(self, di):
         raise NotImplementedError
 
+    # Too many difficulties
     def cache_day(self, di):
         """
         Cache data for a new day di based on already cached data
@@ -108,16 +124,16 @@ class DataPortalModule(Module, DataProvider, Serializable):
         """
         if self.cache_exist(self.cache_path):
             self.load_all_data(self.cache_path)
+            self.compute_day(di)
+            self.dump(self.cache_path)
         else:
             self.build()
-        self.compute_day(di)
-        self.dump(self.cache_path)
 
     def fetch_single_data(self, data_name):
         if not self.cache_exist(self.cache_path):
             self.build()
         if self.data_loaded[data_name] is False:
-            self.load_single_data(data_name)
+            self.load_single_data(self.cache_path, data_name)
             return getattr(self, data_name)
 
 

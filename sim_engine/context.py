@@ -1,3 +1,5 @@
+import numpy as np
+
 class Context(object):
     # Every test case need one singular context
 
@@ -6,10 +8,10 @@ class Context(object):
         di_list is in the form of ['20060101', '20060102', ...]
         ii_list is in the form of ['000001', '000002', ...]
         """
-        self.di_list = []
-        self.ii_list = []
+        self.di_list = None
+        self.ii_list = None
+
         self.data_container = {
-            'is_valid': None
         }
 
         self.constants = {}
@@ -18,6 +20,9 @@ class Context(object):
         self.end_date = None
         self.start_di = None
         self.end_di = None
+
+    def set_shape(self, di_size, ii_size):
+        self.alpha = np.ndarray((di_size, ii_size))
 
     def set_di_list(self, _list):
         self.di_list = _list
@@ -46,6 +51,9 @@ class Context(object):
 
     def fetch_data(self, name):
         return self.data_container[name]
+
+    def has_data(self, name):
+        return name in self.data_container.keys()
 
     def register_constant(self, name, value):
         self.constants[name] = value

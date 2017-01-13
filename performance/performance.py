@@ -7,7 +7,7 @@ class Performance(DailyLoopModule):
         pass
 
     def end_day(self, di):
-        pass
+        self.daily_stats(self.context.alpha, di)
 
     def intro_day(self, di):
         pass
