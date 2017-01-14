@@ -3,6 +3,12 @@ import numpy as np
 class Context(object):
     # Every test case need one singular context
 
+    @staticmethod
+    def shallow_copy(context):
+        result = context
+        result.data_container = {}
+        return result
+
     def __init__(self):
         """
         di_list is in the form of ['20060101', '20060102', ...]

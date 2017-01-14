@@ -38,9 +38,14 @@ class Engine(object):
         self.data_source = {}
         # In the format of {'mid1': ['dependency1', 'dependency2'], ...}
         self.data_dependency = {}
+        # In the format of [module1, module2, module3]
+        self.daily_data_sequence = []
         # In the format of {'mid1': module_instance, ...}
         self.data_portal_modules = {}
         self.daily_data_portal_modules = {}
+
+        self.real_dependency = set()
+        self.case_list = []
 
     def parse_config(self):
         tree = ET.parse(self.config_path)
@@ -151,6 +156,40 @@ class Engine(object):
         print(self.data_source)
         print(self.data_dependency)
 
+    def analyze_daily_data_sequence(self):
+        _modules = self.daily_data_portal_modules.copy()
+
+        _all_data = []
+        _source = {}
+        _dependency = {}
+        for mid in _modules.keys():
+            for data_name in _modules[mid].data.keys():
+                _all_data.append(data_name)
+            _source[mid] = _modules[mid].data.keys()
+
+        for mid in _modules.keys():
+            _dependency[mid] = []
+            for data_name in _modules[mid].dependency:
+                if data_name in _all_data:
+                    _dependency[mid].append(data_name)
+
+        while len(_dependency) != 0:
+            _to_remove_data = []
+            _to_remove_mid = []
+            for mid in _dependency.keys():
+                if len(_dependency[mid]) == 0:
+                    self.daily_data_sequence.append(mid)
+                    for data_name in _source[mid]:
+                        _to_remove_data.append(data_name)
+                    _to_remove_mid.append(mid)
+
+            for mid in _to_remove_mid:
+                del _dependency[mid]
+            for mid in _dependency.keys():
+                for data_name in _dependency[mid]:
+                    if data_name in _to_remove_data:
+                        _dependency[mid].remove(data_name)
+
     def load_data(self, name):
         if self.globals.has_data(name):
             return
@@ -187,6 +226,8 @@ class Engine(object):
             module.initialize()
             module.build()
 
+
+
     @staticmethod
     def _set_add_list(_set, _list):
         for item in _list:
@@ -194,23 +235,41 @@ class Engine(object):
 
     def generate_run_case(self, xml_structure):
         sim = xml_structure['Sim']
-        dependency = set()
+
         for case_structure in sim:
             case_id = case_structure['id']
             case = RunCase(case_id=case_id)
 
+            context = Context.shallow_copy(self.globals)
+
             universe_structure = case_structure['Universe']
             universe_id = universe_structure['moduleId']
+            self.real_dependency.add(universe_id)
+            context.register_data('is_valid', self.globals.data_container[universe_id])
 
             alpha_structure = case_structure['Alpha']
+            alpha_module = self.module_factory.create_module(mid=alpha_structure['moduleId'],
+                                                             context=context,
+                                                             params=alpha_structure)
+            self._set_add_list(self.real_dependency, alpha_module.dependency)
+            case.set_alpha_module(alpha_module)
+
             operations_structure = case_structure['Operations']
+            for operation_info in operations_structure:
+                operation_module = self.module_factory.create_module(mid=operation_info['moduleId'],
+                                                                     context=context,
+                                                                     params=operation_info)
+                self._set_add_list(self.real_dependency, operation_module.dependency)
+                case.add_operation_module(operation_module)
+
             performance_structure = case_structure['Performance']
+            performance_module = self.module_factory.create_module(mid=performance_structure['moduleId'],
+                                                                   context=context,
+                                                                   params=performance_structure)
+            self._set_add_list(self.real_dependency, performance_module.dependency)
+            case.set_performance_module(performance_module)
 
-            alpha_id = alpha_structure['moduleId']
-            performance_id = performance_structure['moduleId']
-
-            dependency.add(universe_id)
-            self._set_add_list()
+            self.case_list.append(case)
 
     def sim(self):
         print(self.xml_structure)
@@ -219,13 +278,25 @@ class Engine(object):
         self.load_environment()
         print(sim_config)
         self.analyze_dependency(self.xml_structure)
+        self.analyze_daily_data_sequence()
+        self.generate_run_case(self.xml_structure)
 
-        # self.analyze_dependency(self.xml_structure)
+        for data in self.real_dependency:
+            self.load_data(data)
 
-        # self.context.start_date = startDate
-        # self.context.end_date = endDate
+        start_di = self.globals.start_di
+        end_di = self.globals.end_di
+        for di in range(start_di, end_di+1):
+            for mid in self.daily_data_sequence:
+                self.daily_data_portal_modules[mid].start_day(di)
+            for case in self.case_list:
+                case.start_day(di)
 
-        #self.preload_modules(sim_config)
+            for mid in self.daily_data_sequence:
+                self.daily_data_portal_modules[mid].after_day(di)
+            for case in self.case_list:
+                case.after_day(di)
+
 
 if __name__ == '__main__':
     engine = Engine('/Users/Onlyrabbit/PycharmProjects/zalpha/config.xml')

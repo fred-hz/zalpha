@@ -15,10 +15,10 @@ class RunCase(object):
     def add_operation_module(self, module):
         self.operation_modules.append(module)
 
-    def start_day(self):
-        self.alpha_module.start_day()
+    def start_day(self, di):
+        self.alpha_module.start_day(di)
 
-    def end_day(self):
+    def end_day(self, di):
         for module in self.operation_modules:
-            module.end_day()
-        self.performance_module.end_day()
+            module.end_day(di)
+        self.performance_module.end_day(di)
