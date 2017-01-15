@@ -7,6 +7,7 @@ from pipeline.module import (
     DataPortalModule
 )
 
+
 class DataManagerBase(DataPortalModule):
     __metaclass__ = ABCMeta
 
