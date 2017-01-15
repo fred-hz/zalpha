@@ -3,6 +3,7 @@ from abc import (
     abstractmethod
 )
 from pipeline.serialization import Serializable
+import numpy as np
 
 class Module(object):
     # All the modules have dependencies on other modules
@@ -97,6 +98,7 @@ class DataPortalModule(DataProvider, Module, Serializable):
         DataProvider.__init__(self)
         Module.__init__(self, params, context)
         Serializable.__init__(self, cache_path)
+        self.refresh_list = []
 
         print("DataPortalModule Initialized.")
 
@@ -115,7 +117,36 @@ class DataPortalModule(DataProvider, Module, Serializable):
     def compute_day(self, di):
         raise NotImplementedError
 
-    # Too many difficulties
+    @abstractmethod
+    def freshes(self):
+        raise NotImplementedError
+
+    def register_fresh(self, data_name):
+        self.refresh_list.append(data_name)
+
+    def refresh_day(self, cache_path):
+        if len(self.refresh_list) == 0:
+            return
+        di_size = len(self.context.di_list)
+        ii_size = len(self.context.ii_list)
+        data = getattr(self, self.refresh_list[0])
+        old_di_size, old_ii_size = data.shape
+        if old_di_size == di_size:
+            return
+        for data_name in self.refresh_list:
+            data = getattr(self, data_name)
+            if ii_size > old_ii_size:
+                temp = np.ndarray((di_size, ii_size - old_ii_size), dtype=float)
+                temp.flat = np.nan
+                data = np.hstack((data, temp))
+
+            temp = np.ndarray((di_size - old_di_size, ii_size), dtype=float)
+            temp.flat = np.nan
+            setattr(self, data_name, np.vstack((data, temp)))
+        for di in range(old_di_size, di_size):
+            self.compute_day(di)
+        self.dump(cache_path)
+
     def cache_day(self, di):
         """
         Cache data for a new day di based on already cached data
@@ -124,10 +155,10 @@ class DataPortalModule(DataProvider, Module, Serializable):
         """
         if self.cache_exist(self.cache_path):
             self.load_all_data(self.cache_path)
-            self.compute_day(di)
-            self.dump(self.cache_path)
+            self.refresh_day(self.cache_path)
         else:
             self.build()
+            self.dump(self.cache_path)
 
     def fetch_single_data(self, data_name):
         if not self.cache_exist(self.cache_path):
@@ -135,29 +166,3 @@ class DataPortalModule(DataProvider, Module, Serializable):
         if self.data_loaded[data_name] is False:
             self.load_single_data(self.cache_path, data_name)
             return getattr(self, data_name)
-
-
-
-# class DataPortalModuleCacheable(DataPortalModule, Serializable):
-#     __metaclass__ = ABCMeta
-#
-#     def __init__(self, params, context):
-#         super(DataPortalModuleCacheable, self).__init__(params=params,
-#                                                         context=context,
-#                                                         cache_path=params['cachePath'])
-#         self.register_caches()
-#
-#     @abstractmethod
-#     def register_caches(self):
-#         raise NotImplementedError
-#
-#     def fetch_data(self, data_names):
-#         if self.data_loaded is False:
-#             if not self.cache_exist(self.cache_path):
-#                 self._compute()
-#                 self.dump(self.cache_path)
-#             else:
-#                 for name in data_names:
-#                     self.load_single_data(self.cache_path, name)
-#             self.data_loaded = True
-#         return {name: self.data[name] for name in data_names}

@@ -4,29 +4,22 @@ import re, os
 
 
 class DataManagerBaseData(DataManagerBase):
-
-    def initialize(self):
-        self.ticker_list = self.context.ii_list
-        self.date_list = self.context.di_list
-
     def __init__(self, params, context):
         super(DataManagerBaseData, self).__init__(params=params, context=context)
         # Fetch data from context and identify values to variables
         self.data_path = self.params['dataPath']
         self.sector_path = self.params['sectorPath']
 
-    def provide_data(self):
-        di_size = len(self.context.di_list)
-        ii_size = len(self.context.ii_list)
+    def initialize(self):
+        self.ticker_list = self.context.ii_list
+        self.date_list = self.context.di_list
 
-        self._CName = []
-        for di in range(di_size):
-            temp = []
-            for ii in range(ii_size):
-                temp.append('nan')
-            self._CName.append(temp)
+    def provide_data(self):
+        di_size = len(self.date_list)
+        ii_size = len(self.ticker_list)
 
         self._isOpen = np.ndarray((di_size, ii_size), dtype=float)
+        self._isST = np.ndarray((di_size, ii_size), dtype=float)
         self._open = np.ndarray((di_size, ii_size), dtype=float)
         self._high = np.ndarray((di_size, ii_size), dtype=float)
         self._low = np.ndarray((di_size, ii_size), dtype=float)
@@ -38,6 +31,7 @@ class DataManagerBaseData(DataManagerBase):
         self._vwap = np.ndarray((di_size, ii_size), dtype=float)
         self._accumAdjFactor = np.ndarray((di_size, ii_size), dtype=float)
         self._sharesout = np.ndarray((di_size, ii_size), dtype=float)  # 流通股数
+        self._ret = np.ndarray((di_size, ii_size), dtype=float)
 
         self._sector = np.ndarray((di_size, ii_size), dtype=float)
         self._sectorIdx = []
@@ -50,7 +44,7 @@ class DataManagerBaseData(DataManagerBase):
         self._subindustryName = []
 
         self.register_data('isOpen', self._isOpen)
-        self.register_data('CName', self._CName)
+        self.register_data('isST', self._isST)
         self.register_data('open', self._open)
         self.register_data('high', self._high)
         self.register_data('low', self._low)
@@ -62,7 +56,8 @@ class DataManagerBaseData(DataManagerBase):
         self.register_data('vwap', self._vwap)
         self.register_data('adjfactor', self._accumAdjFactor)
         self.register_data('sharesout', self._sharesout)
-        
+        self.register_data('return', self._ret)
+
         self.register_data('sector', self._sector)
         self.register_data('sectorIdx', self._sectorIdx)
         self.register_data('sectorName', self._sectorName)
@@ -72,32 +67,6 @@ class DataManagerBaseData(DataManagerBase):
         self.register_data('subindustry', self._subindustry)
         self.register_data('subindustryIdx', self._subindustryIdx)
         self.register_data('subindustryName', self._subindustryName)
-
-
-    def caches(self):
-        self.register_cache('isOpen')
-        self.register_cache('CName')
-        self.register_cache('open')
-        self.register_cache('high')
-        self.register_cache('low')
-        self.register_cache('close')
-        self.register_cache('volume')
-        self.register_cache('amount')
-        self.register_cache('turnover')
-        self.register_cache('cap')
-        self.register_cache('vwap')
-        self.register_cache('accumAdjFactor')
-        self.register_cache('sharesout')
-
-        self.register_cache('sector')
-        self.register_cache('sectorIdx')
-        self.register_cache('sectorName')
-        self.register_cache('industry')
-        self.register_cache('industryIdx')
-        self.register_cache('industryName')
-        self.register_cache('subindustry')
-        self.register_cache('subindustryIdx')
-        self.register_cache('subindustryName')
 
     def compute_day(self, di):
         date = self.date_list[di]
@@ -116,6 +85,14 @@ class DataManagerBaseData(DataManagerBase):
                 # print(ii)
                 self._isOpen[di][ii] = float(items[-1])
                 if self._isOpen[di][ii] > 0.5:
+                    if not items[5] == '' and not items[10] == '':
+                        if float(items[5]) < 1e-5:
+                            print(
+                                "warning : there is abnormal value : return of ticker : " + ticker + " at date: " + date)
+                        self._ret[di][ii] = float(items[10]) / float(items[5]) - 1
+                    else:
+                        print("warning : there is no return price of ticker : " + ticker + " at date: " + date)
+                        self._ret[di][ii] = np.nan
                     if not items[7] == '':
                         if float(items[7]) < 1e-5:
                             print(
@@ -193,11 +170,16 @@ class DataManagerBaseData(DataManagerBase):
                     self._turnover[di][ii] = np.nan
                     self._cap[di][ii] = np.nan
                     self._sharesout[di][ii] = np.nan
+                    self._ret[di][ii] = np.nan
 
                 if not items[2] == '':
-                    self._CName[di][ii] = items[2]
+                    if 'st' in items[2] or 'ST' in items[2]:
+                        self._isST[di][ii] = 1
+                    else:
+                        self._isST[di][ii] = 0
                 else:
                     print("warning : there is no company name data of ticker : " + ticker + " at date: " + date)
+                    self._isST[di][ii] = np.nan
 
                 if not items[15] == '':
                     self._accumAdjFactor[di][ii] = float(items[15])
@@ -269,3 +251,49 @@ class DataManagerBaseData(DataManagerBase):
     def dependencies(self):
         # Do not need dependencies in DataManagerBaseData
         pass
+
+    def caches(self):
+        self.register_cache('isOpen')
+        self.register_cache('isST')
+        self.register_cache('open')
+        self.register_cache('high')
+        self.register_cache('low')
+        self.register_cache('close')
+        self.register_cache('volume')
+        self.register_cache('amount')
+        self.register_cache('turnover')
+        self.register_cache('cap')
+        self.register_cache('vwap')
+        self.register_cache('accumAdjFactor')
+        self.register_cache('sharesout')
+        self.register_cache('return')
+
+        self.register_cache('sector')
+        self.register_cache('sectorIdx')
+        self.register_cache('sectorName')
+        self.register_cache('industry')
+        self.register_cache('industryIdx')
+        self.register_cache('industryName')
+        self.register_cache('subindustry')
+        self.register_cache('subindustryIdx')
+        self.register_cache('subindustryName')
+
+    def freshes(self):
+        self.register_fresh('isOpen')
+        self.register_fresh('isST')
+        self.register_fresh('open')
+        self.register_fresh('high')
+        self.register_fresh('low')
+        self.register_fresh('close')
+        self.register_fresh('volume')
+        self.register_fresh('amount')
+        self.register_fresh('turnover')
+        self.register_fresh('cap')
+        self.register_fresh('vwap')
+        self.register_fresh('accumAdjFactor')
+        self.register_fresh('sharesout')
+        self.register_fresh('return')
+
+        self.register_fresh('sector')
+        self.register_fresh('industry')
+        self.register_fresh('subindustry')

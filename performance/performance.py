@@ -1,39 +1,108 @@
 import numpy as np
 from pipeline.module import DailyLoopModule
+import math
+
 
 class Performance(DailyLoopModule):
+    def initialize(self):
+        self.alpha = self.context.alpha
+        self.long_capital = self.params['long_capital']
+        self.short_capital = self.params['short_capital']
+        self.adj_cps = self.context.fetch_data('adj_close')
+        self.adj_vwap = self.context.fetch_data('adj_vwap')
+        self.start_di = self.context.date_idx(self.params['startDate'])
+        self.end_di = self.context.date_idx(self.params['endDate'])
+        self.di_size = len(self.context.di_list)
+        self.ii_size = len(self.context.ii_list)
+        self.history_position = np.zeros((self.di_size, self.ii_size))
+        self.alphaId = self.params['Id']
+        self.cumpnl = 0
+        self.cumtvr = 0
+        self.cumcapital = 0
+        self.count = 0
+        self.rmean = 0
+        self.r2sum = 0
 
     def start_day(self, di):
         pass
 
-    def end_day(self, di):
-        self.daily_stats(self.context.alpha, di)
-
     def intro_day(self, di):
         pass
+
+    def end_day(self, di):
+        if di > self.end_di or di < self.start_di:
+            raise Exception('date error: beyond simulation date range!!!')
+
+        self.count += 1
+        long_num = np.sum(self.alpha > 0)
+        long_sum = np.sum(self.alpha[self.alpha > 0])
+        short_num = np.sum(self.alpha < 0)
+        short_sum = np.sum(self.alpha[self.alpha < 0])
+        if long_num == 0:
+            raise Exception('Warning: no positive alpha value, cannot allocate long capital!!!')
+        if short_num == 0:
+            raise Exception('Warning: no negative alpha value, cannot allocate short capital!!!')
+        if long_num > 0 and abs(long_sum) < 1e-5:
+            raise Exception('Warning: long alpha value is too small!!!')
+        if short_num > 0 and abs(short_sum) < 1e-5:
+            raise Exception('Warning: short alpha value is too small!!!')
+
+        self.history_position[di][self.alpha > 0] = self.long_capital * self.alpha[self.alpha > 0] / long_sum
+        self.history_position[di][self.alpha < 0] = - self.short_capital * self.alpha[self.alpha < 0] / short_sum
+
+        shares = np.zeros(self.ii_size)
+        old_shares = np.zeros(self.ii_size)
+        tmp = np.where(-np.isnan(self.adj_cps[di - 1]))[0]
+        old_tmp = np.where(-np.isnan(self.adj_cps[di - 2]))[0]
+        shares[tmp] = np.round(self.history_position[di][tmp] / self.adj_cps[di - 1][tmp])
+        old_shares[old_tmp] = np.round(self.history_position[di - 1][old_tmp] / self.adj_cps[di - 2][old_tmp])
+
+        total_shares = np.sum(np.absolute(shares))
+        long_num = np.sum(shares > 0)
+        short_num = np.sum(shares < 0)
+
+        position = np.zeros(self.ii_size)
+        old_position = np.zeros(self.ii_size)
+        position[tmp] = shares[tmp] * self.adj_cps[di-1][tmp]
+        old_position[old_tmp] = old_shares[old_tmp] * self.adj_cps[di-2][old_tmp]
+
+        tvr = np.sum(np.absolute(position - old_position))
+        self.cumtvr += tvr
+
+        l_capital = np.sum(position[position > 0])
+        s_capital = - np.sum(position[position < 0])
+        self.cumcapital += l_capital + s_capital
+
+        holding_pnl = np.nansum(old_shares * (self.adj_cps[di] - self.adj_cps[di-1]))
+        trading_pnl = np.nansum((shares - old_shares) * (self.adj_cps[di] - self.adj_vwap[di]))
+        pnl = holding_pnl + trading_pnl
+        self.cumpnl += pnl
+
+        ret = pnl / (l_capital + s_capital)
+        if di == self.start_di:
+            self.T = ret
+            self.Vmin = ret
+            self.Tmax = max(0, self.T)
+        else:
+            self.T += ret
+            if self.T - self.Tmax < self.Vmin:
+                self.Vmin = self.T - self.Tmax
+            if self.T > self.Tmax:
+                self.Tmax = self.T
+
+        self.rmean = (self.rmean * (self.count-1) + ret) / self.count
+        self.r2sum += pow(ret, 2)
+        IR = self.rmean / math.sqrt(self.r2sum / self.count - pow(self.rmean, 2))
+        date = self.context.di_list[di]
+        print("%81s X %7s %10s %15s %25s %7s %7s %7s %7s" % ("LONG", "SHORT", "SHARES", "PNL", "CUMPNL", "TVR", "RET", "DD", "IR"))
+        print("%8s %30s %15d X %15d %7d X %7d %10d %15d %25d %7.3f %7.3f %7.3f %7.3f" % (date, self.alphaId, int(l_capital), -int(s_capital), int(long_num), int(short_num), int(total_shares), int(pnl), int(self.cumpnl), self.cumtvr / self.cumcapital, self.cumpnl / self.cumcapital, min(0, self.Vmin) ,IR))
+        with open('F:\zalpha\zalpha\pnl\\' + self.alphaId + '.csv', 'a') as output:
+            output.write("%8s %15f %15f %15f %15f\n" % (date, pnl, tvr, l_capital, s_capital))
 
     def dependencies(self):
         self.register_dependency('adj_close')
         self.register_dependency('adj_vwap')
-        self.register_dependency('ZZ500')
 
-    def initialize(self):
-        self.adj_close = self.context.fetch_data('adj_close')
-        self.adj_vwap = self.context.fetch_data('adj_vwap')
-
-        self.long_mode = self.params['long_mode']
-        self.short_mode = self.params['short_mode']
-        self.long_capital = self.params['long_capital']
-        self.short_capital = self.params['short_capital']
-        self.tax = self.params['tax']
-        self.fee = self.params['fee']
-
-        di_size = len(self.context.di_list)
-        ii_size = len(self.context.ii_list)
-        self.history_position = np.ndarray((di_size, ii_size))
-
-    def daily_stats(self, alpha, di):
-        pass
 
 """
 Alpha based functions should return in the form of
@@ -56,156 +125,3 @@ start_di: di of the start date of backtest
 end_di: di of the last date of backtest
 threhold: only deal with the top n stocks
 """
-
-# def alpha_normal(alpha, di, is_long, capital, context, history_position, start_di, end_di):
-#     if di > end_di or di < start_di:
-#         raise Exception('date error: beyond simulation date range!!!')
-#     adj_cps = context.fetch_data('adjust_close')
-#     adj_vwap = context.fetch_data('adjust_vwap')
-#     result = {'type': 'alpha_based'}
-#     if is_long:
-#         num = np.sum(alpha > 0)
-#         sum = np.sum(alpha[alpha > 0])
-#     else:
-#         num = np.sum(alpha < 0)
-#         sum = np.sum(alpha[alpha < 0])
-#     if num == 0:
-#         if is_long:
-#             raise Exception('there is no positive alpha value, so we cannot allocate long capital!!!')
-#         else:
-#             raise Exception('there is no negative alpha value, so we cannot allocate short capital!!!')
-#     if num > 0 and abs(sum) < 1e-5:
-#         raise Exception('alpha value is too small!!!')
-#
-#     if is_long:
-#         history_position[di][alpha > 0] = capital * alpha[alpha > 0] /sum
-#     else:
-#         history_position[di][alpha < 0] = -capital * alpha[alpha < 0] / sum
-#
-#     if di == start_di:
-#         pnl = 0.
-#         tvr = capital
-#     else:
-#         if is_long:
-#             tvr = np.sum(np.absolute(history_position[di][alpha > 0] - history_position[di - 1][alpha > 0]))
-#             tmp = np.where(alpha > 0 & -np.isnan(adj_cps[di - 2]) & -np.isnan(adj_cps[di - 1]) & -np.isnan(adj_cps[di]) & -np.isnan(adj_vwap[di]))[0]
-#             pnl = np.sum(history_position[di][tmp] / adj_cps[di - 1][tmp] * (adj_cps[di][tmp] - adj_vwap[di][tmp]) + \
-#                          history_position[di-1][tmp] / adj_cps[di - 2][tmp] * (adj_vwap[di][tmp] - adj_cps[di - 1][tmp]))
-#         else:
-#             tvr = np.sum(np.absolute(history_position[di][alpha < 0] - history_position[di - 1][alpha < 0]))
-#             tmp = np.where(alpha < 0 & -np.isnan(adj_cps[di - 2]) & -np.isnan(adj_cps[di - 1]) & -np.isnan(adj_cps[di]) & -np.isnan(adj_vwap[di]))[0]
-#             pnl = np.sum(history_position[di][tmp] / adj_cps[di - 1][tmp] * (adj_cps[di][tmp] - adj_vwap[di][tmp]) + \
-#                          history_position[di - 1][tmp] / adj_cps[di - 2][tmp] * (adj_vwap[di][tmp] - adj_cps[di - 1][tmp]))
-#
-#     result['pnl'] = pnl
-#     if is_long:
-#         result['long_capital'] = capital
-#         result['short_capital'] = 0
-#         result['long_num'] = num
-#         result['short_num'] = 0
-#     else:
-#         result['long_capital'] = 0
-#         result['short_capital'] = capital
-#         result['long_num'] = 0
-#         result['short_num'] = num
-#     result['tvr'] = tvr
-#     return result
-#
-#
-# def alpha_topN(alpha, di, is_long, capital, context, history_position, start_di, end_di, thredhold = 50):
-#     pass
-#
-# """
-# Index based functions should return in the form of
-# {
-#     'type': 'index_based',
-#     'pnl': xxx,
-#     'long_capital': xxx,
-#     'short_capital': xxx,
-#     'tvr': xxx
-# }
-# IC: ZZ500
-# IF: HS300
-# IH: SZ50
-# """
-#
-# def index_normal(di, is_long, capital, index = 'IC'):
-#     pass
-#
-# alpha_based_mapping ={
-#     'alpha_normal': alpha_normal,
-#     'alpha_topN': alpha_topN
-# }
-#
-# index_based_mapping = {
-#     'index_normal': index_normal,
-# }
-#
-#
-# class Performance(Module):
-#     def __init__(self, params, context):
-#         pass
-#
-#     # def __init__(self, context, start_di, end_di, long_mode, short_mode, long_capital, short_capital):
-#     #     self.context = context
-#     #     self.start_di = start_di
-#     #     self.end_di = end_di
-#     #     self.long_mode = long_mode
-#     #     self.short_mode = short_mode
-#     #     self.long_capital = long_capital
-#     #     self.short_capital = short_capital
-#     #
-#     #     di_size = len(self.context.di_list)
-#     #     ii_size = len(self.context.ii_list)
-#     #     # Stores the capital position of each stock
-#     #     self.alpha_positions = np.zeros((di_size, ii_size))
-#     #
-#     #     # Stores all the history stats
-#     #     self.history_stats = []
-#
-#     def initialize(self):
-#         pass
-#
-#     def compute_day(self, di):
-#         pass
-#
-#     def daily_stats(self, alpha, di):
-#         long_stats = None
-#         short_stats = None
-#
-#         if self.long_mode in alpha_based_mapping.keys():
-#             long_stats = alpha_based_mapping[self.long_mode](alpha=alpha,
-#                                                              di=di,
-#                                                              is_long=True,
-#                                                              capital=self.long_capital,
-#                                                              context=self.context,
-#                                                              history_position=self.alpha_positions,
-#                                                              start_di=self.start_di,
-#                                                              end_di=self.end_di)
-#         elif self.long_mode in index_based_mapping.keys():
-#             long_stats = index_based_mapping[self.long_mode](di=di,
-#                                                              is_long=True,
-#                                                              capital=self.long_capital,
-#                                                              index='')
-#         else:
-#             raise Exception
-#
-#         if self.short_mode in alpha_based_mapping.keys():
-#             short_stats = alpha_based_mapping[self.short_mode](alpha=alpha,
-#                                                                di=di,
-#                                                                is_long=False,
-#                                                                capital=self.short_capital,
-#                                                                context=self.context,
-#                                                                history_position=self.alpha_positions,
-#                                                                start_di=self.start_di,
-#                                                                end_di=self.end_di)
-#         elif self.short_mode in index_based_mapping.keys():
-#             short_stats = index_based_mapping[self.short_mode](di=di,
-#                                                                is_long=False,
-#                                                                capital=self.short_capital,
-#                                                                index='')
-#         else:
-#             raise Exception
-#
-#         # to-do: combine the long and short stats. Then store it to self.history_stats
-#
