@@ -13,6 +13,10 @@ class Context(object):
         self.data_container = {
         }
 
+        # Record if specific data is loaded
+        self.data_loaded = {
+        }
+
         self.constants = {}
 
         self.start_date = None
@@ -22,8 +26,8 @@ class Context(object):
 
         self.is_valid = None
 
-    def set_shape(self, di_size, ii_size):
-        self.alpha = np.ndarray((di_size, ii_size))
+    def set_shape(self, ii_size):
+        self.alpha = np.zeros(ii_size, dtype='float')
 
     def set_di_list(self, _list):
         self.di_list = _list
@@ -54,7 +58,10 @@ class Context(object):
         return self.data_container[name]
 
     def has_data(self, name):
-        return name in self.data_container.keys()
+        return name in self.data_loaded.keys() and self.data_loaded[name] is True
+
+    def mark_loaded_data(self, name):
+        self.data_loaded[name] = True
 
     def register_constant(self, name, value):
         self.constants[name] = value

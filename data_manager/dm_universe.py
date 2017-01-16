@@ -20,7 +20,6 @@ class DataManagerUniverse(DataManagerBase):
         ii_size = len(self.context.ii_list)
 
         self.is_valid = np.ndarray((di_size, ii_size), dtype=float)
-
         self.register_data(self.params['id'], self.is_valid)
 
     def compute_day(self, di):
@@ -86,6 +85,12 @@ class DataManagerUniverse(DataManagerBase):
 
     def caches(self):
         self.register_cache('is_valid')
+
+    def fetch_single_data(self, data_name):
+        if data_name == self.params['id']:
+            return super(DataManagerUniverse, self).fetch_single_data('is_valid')
+        else:
+            return super(DataManagerUniverse, self).fetch_single_data(data_name)
 
     def freshes(self):
         self.register_fresh('is_valid')

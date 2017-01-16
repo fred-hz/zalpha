@@ -33,29 +33,29 @@ class Serializable(object):
             ))
         self.serialize_list.append(name)
 
-    def cache_exist(self, cache_path):
+    def cache_exist(self):
         if len(self.serialize_list) == 0:
             return False
         for name in self.serialize_list:
-            if not os.path.exists(os.path.join(cache_path, name)):
+            if not os.path.exists(os.path.join(self.cache_path, name)):
                 return False
         return True
 
-    def dump(self, cache_path):
+    def dump(self):
         for name in self.serialize_list:
             var = getattr(self, name)
             if var is None:
                 raise Exception('Dumping None object {name}'.format(
                     name=name
                 ))
-            pickle.dump(file=os.path.join(cache_path, name), obj=var)
+            pickle.dump(file=os.path.join(self.cache_path, name), obj=var)
 
-    def load_single_data(self, cache_path, name):
+    def load_single_data(self, name):
         if name not in self.serialize_list:
             raise Exception('Data {name} is not in cache'.format(
                 name=name
             ))
-        obj = pickle.load(open(os.path.join(cache_path, name), 'rb'))
+        obj = pickle.load(open(os.path.join(self.cache_path, name), 'rb'))
         if obj is None:
             raise Exception('Loading None object {name}'.format(
                 name=name
@@ -63,9 +63,9 @@ class Serializable(object):
         setattr(self, name, obj)
         self.data_loaded[name] = True
 
-    def load_all_data(self, cache_path):
+    def load_all_data(self):
         for name in self.serialize_list:
-            self.load_single_data(cache_path, name)
+            self.load_single_data(name)
 
     # def load_data(self):
     #     if self.cache_exist(self.cache_path):

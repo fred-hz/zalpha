@@ -9,7 +9,7 @@ class OperationDecay(OperationBase):
             self.dense = True
         else:
             self.dense = ('True' == self.params['dense'])
-        self.valid = self.context.fetch_data('is_valid')  # need to revise
+        self.valid = self.context.is_valid  # need to revise
         Instruments_size = len(self.context.ii_list)
         self.hist = np.zeros((self.days, Instruments_size))
         self.hist.flat = np.nan

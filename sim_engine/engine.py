@@ -44,6 +44,9 @@ class Engine(object):
         self.data_portal_modules = {}
         self.daily_data_portal_modules = {}
 
+        # In the format of [data1, data2, ...]
+        self.daily_portal_all_data = []
+
         self.real_dependency = set()
         self.case_list = []
 
@@ -68,6 +71,9 @@ class Engine(object):
                                                         params=environment_module)
         self.globals.di_list = environment.fetch_single_data('di_list')
         self.globals.ii_list = environment.fetch_single_data('ii_list')
+        self.globals.start_di = self.globals.date_idx(self.globals.start_date)
+        self.globals.end_di = self.globals.date_idx(self.globals.end_date)
+        self.globals.set_shape(len(self.globals.ii_list))
 
     @staticmethod
     def _node_is_collection(node):
@@ -129,6 +135,8 @@ class Engine(object):
         self.constants = self.xml_structure['Constants']
         for key in self.constants.keys():
             self.globals.register_constant(key, self.constants[key])
+        self.globals.start_date = self.globals.fetch_constant('startDate')
+        self.globals.end_date = self.globals.fetch_constant('endDate')
 
     def analyze_dependency(self, xml_structure):
         """
@@ -157,18 +165,17 @@ class Engine(object):
     def analyze_daily_data_sequence(self):
         _modules = self.daily_data_portal_modules.copy()
 
-        _all_data = []
         _source = {}
         _dependency = {}
         for mid in _modules.keys():
             for data_name in _modules[mid].data.keys():
-                _all_data.append(data_name)
+                self.daily_portal_all_data.append(data_name)
             _source[mid] = _modules[mid].data.keys()
 
         for mid in _modules.keys():
             _dependency[mid] = []
             for data_name in _modules[mid].dependency:
-                if data_name in _all_data:
+                if data_name in self.daily_portal_all_data:
                     _dependency[mid].append(data_name)
 
         while len(_dependency) != 0:
@@ -188,7 +195,17 @@ class Engine(object):
                     if data_name in _to_remove_data:
                         _dependency[mid].remove(data_name)
 
+    def _find_module_for_data(self, data_name):
+        for module_id in self.data_source.keys():
+            if data_name in self.data_source[module_id]:
+                return module_id
+        raise Exception
+
     def load_data(self, name):
+        # if name in self.daily_portal_all_data:
+        #     module_id = self._find_module_for_data(name)
+        #     dependency = self.data_dependency[module_id]
+
         if self.globals.has_data(name):
             return
 
@@ -199,7 +216,7 @@ class Engine(object):
                 mid = module_id
                 break
         if mid is None:
-            raise Exception('Module id {mid} not exist'.format(mid=mid))
+            raise Exception('Data name {name} not exist'.format(name=name))
 
         # If the data is provided by a DataPortalModule instance,
         # then we need to fetch the data directly or build the module.
@@ -207,24 +224,26 @@ class Engine(object):
             module = self.data_portal_modules[mid]
             if module.cache_exist():
                 self.globals.register_data(name, module.fetch_single_data(name))
+                self.globals.mark_loaded_data(name)
             else:
                 dependency = self.data_dependency[mid]
                 for data_name in dependency:
                     self.load_data(data_name)
-                module.initialized()
+                module.initialize()
                 module.build()
+                for name in module.data.keys():
+                    self.globals.mark_loaded_data(name)
+
         # If the data is provided by a DailyDataPortalModule instance,
         # then we don't need to compute the data right now.
         # Here build() is only a preparation logic for calculation
         elif mid in self.daily_data_portal_modules.keys():
-            module = self.data_portal_modules[mid]
+            module = self.daily_data_portal_modules[mid]
             dependency = self.data_dependency[mid]
             for data_name in dependency:
                 self.load_data(data_name)
             module.initialize()
             module.build()
-
-
 
     @staticmethod
     def _set_add_list(_set, _list):
@@ -260,7 +279,8 @@ class Engine(object):
                 self._set_add_list(self.real_dependency, operation_module.dependency)
                 case.add_operation_module(operation_module)
 
-            performance_structure = case_structure['Performance']
+            performance_structure = case_structure['Performance'].copy()
+            performance_structure['alpha_id'] = case_id
             performance_module = self.module_factory.create_module(mid=performance_structure['moduleId'],
                                                                    context=context,
                                                                    params=performance_structure)
@@ -282,8 +302,14 @@ class Engine(object):
         for data in self.real_dependency:
             self.load_data(data)
 
+        for mid in self.daily_data_sequence:
+            self.daily_data_portal_modules[mid].initialize()
+        for case in self.case_list:
+            case.initialize()
+
         start_di = self.globals.start_di
         end_di = self.globals.end_di
+
         for di in range(start_di, end_di+1):
             for mid in self.daily_data_sequence:
                 self.daily_data_portal_modules[mid].start_day(di)
@@ -291,7 +317,7 @@ class Engine(object):
                 case.start_day(di)
 
             for mid in self.daily_data_sequence:
-                self.daily_data_portal_modules[mid].after_day(di)
+                self.daily_data_portal_modules[mid].end_day(di)
             for case in self.case_list:
                 case.after_day(di)
 

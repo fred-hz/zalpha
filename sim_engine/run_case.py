@@ -22,3 +22,9 @@ class RunCase(object):
         for module in self.operation_modules:
             module.end_day(di)
         self.performance_module.end_day(di)
+
+    def initialize(self):
+        self.alpha_module.initialize()
+        for module in self.operation_modules:
+            module.initialize()
+        self.performance_module.initialize()

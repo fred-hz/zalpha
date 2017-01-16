@@ -114,7 +114,7 @@ class DataPortalModule(DataProvider, Module, Serializable):
         end_di = self.context.date_idx(end_date)
         for di in range(start_di, end_di+1):
             self.compute_day(di)
-        self.dump(self.cache_path)
+        self.dump()
         for name in self.data_loaded.keys():
             self.data_loaded[name] = True
 
@@ -150,7 +150,7 @@ class DataPortalModule(DataProvider, Module, Serializable):
             setattr(self, data_name, np.vstack((data, temp)))
         for di in range(old_di_size, di_size):
             self.compute_day(di)
-        self.dump(cache_path)
+        self.dump()
 
     def cache_day(self, di):
         """
@@ -158,16 +158,16 @@ class DataPortalModule(DataProvider, Module, Serializable):
         :param di:
         :return:
         """
-        if self.cache_exist(self.cache_path):
-            self.load_all_data(self.cache_path)
+        if self.cache_exist():
+            self.load_all_data()
             self.refresh_day(self.cache_path)
         else:
             self.build()
-            self.dump(self.cache_path)
+            self.dump()
 
     def fetch_single_data(self, data_name):
-        if not self.cache_exist(self.cache_path):
+        if not self.cache_exist():
             self.build()
         if self.data_loaded[data_name] is False:
-            self.load_single_data(self.cache_path, data_name)
-            return getattr(self, data_name)
+            self.load_single_data(data_name)
+        return getattr(self, data_name)

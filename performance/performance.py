@@ -4,24 +4,27 @@ import math
 
 
 class Performance(DailyLoopModule):
+
     def initialize(self):
         self.alpha = self.context.alpha
-        self.long_capital = self.params['long_capital']
-        self.short_capital = self.params['short_capital']
+        self.long_capital = self.params['longCapital']
+        self.short_capital = self.params['shortCapital']
         self.adj_cps = self.context.fetch_data('adj_close')
         self.adj_vwap = self.context.fetch_data('adj_vwap')
-        self.start_di = self.context.date_idx(self.params['startDate'])
-        self.end_di = self.context.date_idx(self.params['endDate'])
+        self.start_di = self.context.date_idx(self.context.fetch_constant('startDate'))
+        self.end_di = self.context.date_idx(self.context.fetch_constant('endDate'))
         self.di_size = len(self.context.di_list)
         self.ii_size = len(self.context.ii_list)
         self.history_position = np.zeros((self.di_size, self.ii_size))
-        self.alphaId = self.params['Id']
         self.cumpnl = 0
         self.cumtvr = 0
         self.cumcapital = 0
         self.count = 0
         self.rmean = 0
         self.r2sum = 0
+        self.alphaId = self.params['alpha_id']
+
+        self.alpha = self.context.alpha
 
     def start_day(self, di):
         pass
@@ -34,9 +37,9 @@ class Performance(DailyLoopModule):
             raise Exception('date error: beyond simulation date range!!!')
 
         self.count += 1
-        long_num = np.sum(self.alpha > 0)
+        long_num = np.sum(self.alpha[di] > 0)
         long_sum = np.sum(self.alpha[self.alpha > 0])
-        short_num = np.sum(self.alpha < 0)
+        short_num = np.sum(self.alpha[di] < 0)
         short_sum = np.sum(self.alpha[self.alpha < 0])
         if long_num == 0:
             raise Exception('Warning: no positive alpha value, cannot allocate long capital!!!')

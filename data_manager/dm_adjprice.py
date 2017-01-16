@@ -4,8 +4,8 @@ import numpy as np
 
 class DataManagerAdjPrice(DailyLoopDataPortalModule):
     def initialize(self):
-        self.backdays = self.context.fetch_data('backdays')
-        self.start_date = self.context.fetch_data('startDate')
+        self.start_date = self.context.start_date
+        self.backdays = int(self.context.fetch_constant('backdays'))
         self.start_di = self.context.date_idx(self.start_date)
         self.rawopen = self.context.fetch_data('open')
         self.rawhigh = self.context.fetch_data('high')

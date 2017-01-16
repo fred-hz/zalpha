@@ -16,10 +16,10 @@ class EnvStandard(Module, DataProvider, Serializable):
         pass
 
     def fetch_single_data(self, data_name):
-        if not self.cache_exist(self.cache_path):
+        if not self.cache_exist():
             self.build()
         if self.data_loaded[data_name] is False:
-            self.load_single_data(self.cache_path, data_name)
+            self.load_single_data(data_name)
             return getattr(self, data_name)
 
     def provide_data(self):

@@ -34,9 +34,9 @@
                 universe="500" windowDays="63" minPrice="1." maxPrice="1000." minAmount="0." minCap="0." minLive="40" startDate="" endDate=""/>
 
 		<!-- Data Modules -->
-        <Module id="basedata" class="data_manager.dm_basedata.DataManagerBaseData" cachePath="{CACHE}/basedata/bin" dataPath="" sectorPath="" startDate="" endDate=""/>
+        <Module id="basedata" class="data_manager.dm_basedata.DataManagerBaseData" cachePath="{CACHE}/basedata/" dataPath="" sectorPath="" startDate="" endDate=""/>
         <!-- <Module id="wind.financeindex" class="data_manager.dm_windfinance.DataManagerWindFinance" cachePath="{CACHE}/wind/bin" dataPath="" startDate="" endDate=""/> -->
-        <Module id="adjPrice" class="data_manager.dm_adjprice.DataManagerAdjPrice" startDate="" endDate=""/>
+        <Module id="adjPrice" class="data_manager.dm_adjprice.DataManagerAdjPrice"/>
 
 		<!-- Alpha Modules -->
         <Module id="AlphaSample" class="alpha.alpha_sample.AlphaSample"/>
@@ -48,7 +48,7 @@
         <Module id="AlphaOpPower" class="operation.op_power.OperationPower"/>
 
 		<!-- Performance Modules -->
-        <Module id="Performance" class="performance.performance.Performance" longmode="" shortmode="" longcapital="" shortcapital="" tax="0." fee="0."/>
+        <Module id="Performance" class="performance.performance.Performance" longCapital="100000" shortCapital="100000" tax="0." fee="0."/>
     </Modules>
 
 	<!-- delay? method? ndays? -->
