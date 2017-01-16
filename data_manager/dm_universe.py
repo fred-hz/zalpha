@@ -16,8 +16,8 @@ class DataManagerUniverse(DataManagerBase):
         self.size = int(self.params['universe'])
 
     def provide_data(self):
-        di_size = len(self.ticker_list)
-        ii_size = len(self.date_list)
+        di_size = len(self.context.di_list)
+        ii_size = len(self.context.ii_list)
 
         self.is_valid = np.ndarray((di_size, ii_size), dtype=float)
 

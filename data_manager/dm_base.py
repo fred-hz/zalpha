@@ -14,5 +14,3 @@ class DataManagerBase(DataPortalModule):
     def __init__(self, params, context):
         super(DataManagerBase, self).__init__(params, context)
         print("DMBase Initialized")
-        self.register_dependency('di_list')
-        self.register_dependency('ii_list')

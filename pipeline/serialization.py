@@ -1,10 +1,12 @@
+#coding:utf-8
+
 from abc import (
     ABCMeta,
     abstractmethod
 )
 import pickle
 import os.path
-
+import codecs
 
 class Serializable(object):
     __metaclass__ = ABCMeta
@@ -53,7 +55,7 @@ class Serializable(object):
             raise Exception('Data {name} is not in cache'.format(
                 name=name
             ))
-        obj = pickle.load(file=os.path.join(cache_path, name))
+        obj = pickle.load(open(os.path.join(cache_path, name), 'rb'))
         if obj is None:
             raise Exception('Loading None object {name}'.format(
                 name=name

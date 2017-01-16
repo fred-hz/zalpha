@@ -1,11 +1,14 @@
 from pipeline.serialization import Serializable
 from pipeline.module import (
-    DataProvider
+    DataProvider,
+    Module
 )
 import os, re
 
-class EnvStandard(DataProvider, Serializable):
+class EnvStandard(Module, DataProvider, Serializable):
+
     def __init__(self, context, params):
+        Module.__init__(self, context, params)
         DataProvider.__init__(self)
         Serializable.__init__(self, cache_path=params['cachePath'])
 
@@ -30,8 +33,15 @@ class EnvStandard(DataProvider, Serializable):
         self.register_cache('di_list')
         self.register_cache('ii_list')
 
+    def initialize(self):
+        pass
 
-# class EnvStandard(Serializable):
+    def dependencies(self):
+        pass
+
+
+
+            # class EnvStandard(Serializable):
 #
 #     def __init__(self, params, context):
 #         self.data_path = params['dataPath'] #路径和字符串

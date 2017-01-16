@@ -75,8 +75,11 @@ class DailyLoopDataPortalModule(DailyLoopModule, DataProvider):
     __metaclass__ = ABCMeta
 
     def __init__(self, params, context):
-        super(DailyLoopDataPortalModule, self).__init__(params, context)
+        DailyLoopModule.__init__(self, params, context)
+        DataProvider.__init__(self)
         print("DailyLoopDataPortalModule Initialized.")
+        for name in self.data.keys():
+            self.context.register_data(name, self.data[name])
 
     @abstractmethod
     def build(self):
@@ -95,10 +98,12 @@ class DataPortalModule(DataProvider, Module, Serializable):
             cache_path = None
         else:
             cache_path = params['cachePath']
-        DataProvider.__init__(self)
         Module.__init__(self, params, context)
+        DataProvider.__init__(self)
         Serializable.__init__(self, cache_path)
         self.refresh_list = []
+        for name in self.data.keys():
+            self.context.register_data(name, self.data[name])
 
         print("DataPortalModule Initialized.")
 

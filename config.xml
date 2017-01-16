@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <zalpha>
 	
-	<Paths DATAROOT="~/data" RAWDATA="{DATAROOT}/rawData" CACHE="{DATAROOT}/cache"
+	<Paths DATAROOT="/Users/OnlyRabbit/PycharmProjects/data" RAWDATA="{DATAROOT}/rawData" CACHE="{DATAROOT}/cache"
 		   LOCAL="~/PycharmProjects/zalpha"/>
 
 	<!-- backdays? checkPointDays? -->
-	<Constants backdays="256" checkPointDays="5"  startDate="20100101" endDate="20141230"/>
+	<Constants backdays="256" checkPointDays="5"  startDate="20100104" endDate="20141231"/>
 
 
 	<!-- All the modules to be combined together -->
@@ -17,7 +17,7 @@
 	 	 cachePath: Path of cached (dumped) data to be loaded as environment. If cache exists,
 	 	 dataPath will be useless.
 	 -->
-        <Module id="envStandard" class="environment.env_standard.EnvStandard" dataPath="" cachePath="" startDate="20060101" endDate="0"/>
+        <Module id="envStandard" class="environment.env_standard.EnvStandard" dataPath="" cachePath="{CACHE}" startDate="20100104" endDate="20141231"/>
 
 		<!-- Universe Modules, which return the top-highest-liquidity stocks which can be traded
 		under the filter conditions.
@@ -70,17 +70,17 @@
             <Performance moduleId="Performance"/>
         </Case>
 
-        <Case id="alpha5dr" delay="1" method="1" ndays="5">
-            <Universe moduleId="TOP500"/>
-            <Alpha moduleId="AlphaSample"/>
-            <Operations>
-                <Operation moduleId="AlphaOpPower" exp="3.0"/>
-			    <Operation moduleId="AlphaOpDecay" days="10"/>
-			    <Operation moduleId="AlphaOpTruncate" maxPercent="0.1"/>
-			    <Operation moduleId="AlphaOpNeutral" group="industry"/>
-            </Operations>
-            <Performance moduleId="Performance"/>
-        </Case>
+        <!--<Case id="alpha5dr" delay="1" method="1" ndays="5">-->
+            <!--<Universe moduleId="TOP500"/>-->
+            <!--<Alpha moduleId="AlphaSample"/>-->
+            <!--<Operations>-->
+                <!--<Operation moduleId="AlphaOpPower" exp="3.0"/>-->
+			    <!--<Operation moduleId="AlphaOpDecay" days="10"/>-->
+			    <!--<Operation moduleId="AlphaOpTruncate" maxPercent="0.1"/>-->
+			    <!--<Operation moduleId="AlphaOpNeutral" group="industry"/>-->
+            <!--</Operations>-->
+            <!--<Performance moduleId="Performance"/>-->
+        <!--</Case>-->
     </Sim>
 
 	<!--<AlphaTest id="zalpha" delay="1" method="1" ndays="5" startDate="20100101" endDate="20141231">-->

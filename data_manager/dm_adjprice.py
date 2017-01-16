@@ -66,9 +66,9 @@ class DataManagerAdjPrice(DailyLoopDataPortalModule):
         self.register_dependency('accumAdjFactor')
 
     def provide_data(self):
-        self.backdays = self.context.fetch_data('backdays')
+        self.backdays = int(self.context.fetch_constant('backdays'))
         self.ii_size = len(self.context.ii_list)
-
+        print(self.ii_size)
         self.open = np.ndarray((self.backdays, self.ii_size), dtype=float)
         self.high = np.ndarray((self.backdays, self.ii_size), dtype=float)
         self.low = np.ndarray((self.backdays, self.ii_size), dtype=float)

@@ -68,9 +68,6 @@ class Engine(object):
                                                         params=environment_module)
         self.globals.di_list = environment.fetch_single_data('di_list')
         self.globals.ii_list = environment.fetch_single_data('ii_list')
-        # For test, do the followings:
-        self.globals.di_list = ['20100301', '20100302']
-        self.globals.ii_list = ['600001', '600002']
 
     @staticmethod
     def _node_is_collection(node):
@@ -130,8 +127,8 @@ class Engine(object):
 
     def _parse_constant(self):
         self.constants = self.xml_structure['Constants']
-        # for key in self.constants.keys():
-        #     self.context.register_constant(key, self.constants[key])
+        for key in self.constants.keys():
+            self.globals.register_constant(key, self.constants[key])
 
     def analyze_dependency(self, xml_structure):
         """
@@ -151,7 +148,8 @@ class Engine(object):
                 elif isinstance(module, DailyLoopDataPortalModule):
                     self.daily_data_portal_modules[mid] = module
                 else:
-                    raise Exception('Unrecognized data module {id}'.format(id=mid))
+                    pass
+                    # raise Exception('Unrecognized data module {id}'.format(id=mid))
 
         print(self.data_source)
         print(self.data_dependency)
@@ -240,12 +238,12 @@ class Engine(object):
             case_id = case_structure['id']
             case = RunCase(case_id=case_id)
 
-            context = Context.shallow_copy(self.globals)
+            context = self.globals
 
             universe_structure = case_structure['Universe']
             universe_id = universe_structure['moduleId']
             self.real_dependency.add(universe_id)
-            context.register_data('is_valid', self.globals.data_container[universe_id])
+            context.is_valid = self.globals.data_container[universe_id]
 
             alpha_structure = case_structure['Alpha']
             alpha_module = self.module_factory.create_module(mid=alpha_structure['moduleId'],

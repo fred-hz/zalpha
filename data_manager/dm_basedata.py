@@ -15,8 +15,8 @@ class DataManagerBaseData(DataManagerBase):
         self.date_list = self.context.di_list
 
     def provide_data(self):
-        di_size = len(self.date_list)
-        ii_size = len(self.ticker_list)
+        di_size = len(self.context.di_list)
+        ii_size = len(self.context.ii_list)
 
         self._isOpen = np.ndarray((di_size, ii_size), dtype=float)
         self._isST = np.ndarray((di_size, ii_size), dtype=float)
