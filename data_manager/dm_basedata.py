@@ -11,12 +11,12 @@ class DataManagerBaseData(DataManagerBase):
         self.sector_path = self.params['sectorPath']
 
     def initialize(self):
-        self.ticker_list = self.context.ii_list
-        self.date_list = self.context.di_list
+        self.ii_list = self.context.ii_list
+        self.di_list = self.context.di_list
 
     def provide_data(self):
-        di_size = len(self.date_list)
-        ii_size = len(self.ticker_list)
+        di_size = len(self.di_list)
+        ii_size = len(self.ii_list)
 
         self._isOpen = np.ndarray((di_size, ii_size), dtype=float)
         self._isST = np.ndarray((di_size, ii_size), dtype=float)
@@ -69,7 +69,7 @@ class DataManagerBaseData(DataManagerBase):
         self.register_data('subindustryName', self._subindustryName)
 
     def compute_day(self, di):
-        date = self.date_list[di]
+        date = self.di_list[di]
         print("Begin compute basedata: " + date)
         try:
             with open(self.data_path + '\\' + date + '.csv', 'r') as fp:
@@ -81,7 +81,7 @@ class DataManagerBaseData(DataManagerBase):
                 items = line.replace('"', '').split(',')
                 ticker = re.sub('\D', '', items[1])
                 # print(ticker)
-                ii = self.ticker_list.index(ticker)
+                ii = self.ii_list.index(ticker)
                 # print(ii)
                 self._isOpen[di][ii] = float(items[-1])
                 if self._isOpen[di][ii] > 0.5:
@@ -203,7 +203,7 @@ class DataManagerBaseData(DataManagerBase):
                 items = line.replace('"', '').split(',')
                 ticker = re.sub('\D', '', items[1])
                 try:
-                    ii = self.ticker_list.index(ticker)
+                    ii = self.ii_list.index(ticker)
                 except ValueError:
                     # print('Warning: ' + ticker + ' is not in the ticker list')
                     continue

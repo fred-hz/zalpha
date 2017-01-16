@@ -1,16 +1,16 @@
 from alpha.alpha_base import AlphaBase
 
 class AlphaSample(AlphaBase):
-    def dependencies(self):
-        self.register_dependency('open')
-        self.register_dependency('high')
-
     def initialize(self):
-        self.open = self.context.fetch_data('adj_open')
-        self.high = self.context.fetch_data('adj_high')
+        self.delay = int(self.params['delay'])
         self.is_valid = self.context.fetch_dat('is_valid')
+        self.cps = self.context.fetch_data('adj_close')
 
     def compute_day(self, di):
         for ii in range(len(self.context.ii_list)):
-            # Universe 还有问题，先假设直接用 self.is_valid
-            self.alpha[di] = self.open[di-6] - self.open[di-1]
+            if self.is_valid[di][ii]:
+                self.alpha[ii] = self.cps[di - self.delay - 5] - self.cps[di - self.delay]
+
+    def dependencies(self):
+        self.register_dependency('adj_close')
+        self.register_dependency('is_valid')

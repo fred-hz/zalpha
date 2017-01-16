@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <zalpha>
 	
-	<Paths DATAROOT="~/data" RAWDATA="{DATAROOT}/rawData" CACHE="{DATAROOT}/cache"
-		   LOCAL="~/PycharmProjects/zalpha"/>
+	<Paths DATAROOT="F:\zalpha\zalpha\data" RAWDATA="" CACHE="{DATAROOT}\cache"
+		   LOCAL=""/>
 
 	<!-- backdays? checkPointDays? -->
-	<Constants backdays="256" checkPointDays="5"  startDate="20100101" endDate="20141230"/>
+	<Constants backdays="256" checkPointDays="5"  startDate="20100104" endDate="20141231"/>
 
 
 	<!-- All the modules to be combined together -->
@@ -17,7 +17,7 @@
 	 	 cachePath: Path of cached (dumped) data to be loaded as environment. If cache exists,
 	 	 dataPath will be useless.
 	 -->
-        <Module id="envStandard" class="environment.env_standard.EnvStandard" dataPath="" cachePath="" startDate="20060101" endDate="0"/>
+        <Module id="envStandard" class="environment.env_standard.EnvStandard" dataPath="{DATAROOT}" cachePath="{CACHE}" startDate="20060104" endDate="0"/>
 
 		<!-- Universe Modules, which return the top-highest-liquidity stocks which can be traded
 		under the filter conditions.
@@ -30,13 +30,13 @@
 		postIPO: Number of days after which stocks can be traded after IPO (Filter condition)
 		minLive: Number of days the stock has been traded in a row (Filter condition)
 		-->
-        <Module id="TOP500" class="data_manager.dm_universe.DataManagerUniverse" cachePath="{CACHE}/universe/TOP500" dataPath=""
-                universe="500" windowDays="63" minPrice="1." maxPrice="1000." minAmount="0." minCap="0." minLive="40" startDate="" endDate=""/>
+        <Module id="TOP500" class="data_manager.dm_universe.DataManagerUniverse" cachePath= "{CACHE}\universe\TOP500" dataPath=""
+                universe="500" windowDays="63" minPrice="1." maxPrice="1000." minAmount="0." minCap="0." minLive="40" startDate="20070104" endDate="20141231"/>
 
 		<!-- Data Modules -->
-        <Module id="basedata" class="data_manager.dm_basedata.DataManagerBaseData" cachePath="{CACHE}/basedata/bin" dataPath="" sectorPath="" startDate="" endDate=""/>
+        <Module id="basedata" class="data_manager.dm_basedata.DataManagerBaseData" cachePath="{CACHE}\basedata" dataPath="{DATAROOT}\raw_stock_daily_data" sectorPath="{DATAROOT}\raw_sector_daily_data" startDate="20060104" endDate="20141231"/>
         <!-- <Module id="wind.financeindex" class="data_manager.dm_windfinance.DataManagerWindFinance" cachePath="{CACHE}/wind/bin" dataPath="" startDate="" endDate=""/> -->
-        <Module id="adjPrice" class="data_manager.dm_adjprice.DataManagerAdjPrice" startDate="" endDate=""/>
+        <Module id="adjPrice" class="data_manager.dm_adjprice.DataManagerAdjPrice" startDate="20100104" endDate="20141231"/>
 
 		<!-- Alpha Modules -->
         <Module id="AlphaSample" class="alpha.alpha_sample.AlphaSample"/>
@@ -48,7 +48,7 @@
         <Module id="AlphaOpPower" class="operation.op_power.OperationPower"/>
 
 		<!-- Performance Modules -->
-        <Module id="Performance" class="performance.performance.Performance" longmode="" shortmode="" longcapital="" shortcapital="" tax="0." fee="0."/>
+        <Module id="Performance" class="performance.performance.Performance" longcapital="100000000" shortcapital="100000000" tax="0." fee="0."/>
     </Modules>
 
 	<!-- delay? method? ndays? -->

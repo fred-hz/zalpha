@@ -299,6 +299,6 @@ class Engine(object):
 
 
 if __name__ == '__main__':
-    engine = Engine('/Users/Onlyrabbit/PycharmProjects/zalpha/config.xml')
+    engine = Engine('F:\\zalpha\\zalpha\\config.xml')
     engine.parse_config()
     engine.sim()
