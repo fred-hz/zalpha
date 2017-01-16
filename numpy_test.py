@@ -1,5 +1,6 @@
 import numpy as np
 
-x = np.arange(5)
-y = np.arange(5)
-print(np.sum(x[x > 2]))
+x = np.arange(5, dtype=float)
+x[0] = np.nan
+print(x)
+print(np.nanargmax(x))
