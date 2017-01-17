@@ -5,8 +5,8 @@ import numpy as np
 
 class DataManagerUniverse(DataManagerBase):
     def initialize(self):
-        self.ticker_list = self.context.ii_list
-        self.date_list = self.context.di_list
+        self.ii_list = self.context.ii_list
+        self.di_list = self.context.di_list
         self.isOpen = self.context.fetch_data('isOpen')
         self.isST = self.context.fetch_data('isST')
         self.cap = self.context.fetch_data('cap')
@@ -18,7 +18,6 @@ class DataManagerUniverse(DataManagerBase):
     def provide_data(self):
         di_size = len(self.context.di_list)
         ii_size = len(self.context.ii_list)
-
         self.is_valid = np.ndarray((di_size, ii_size), dtype=float)
         self.register_data(self.params['id'], self.is_valid)
 
@@ -26,8 +25,8 @@ class DataManagerUniverse(DataManagerBase):
             print('Begin calculate universe: ' + self.context.di_list[di])
             liquidity = {}
             di -= 1  # 用之前的值去决定今天的universe
-            for ii in range(len(self.ticker_list)):
-                if self.isST[di][ii] > 0.5:  # 去掉ST股票
+            for ii in range(len(self.ii_list)):
+                if np.isnan(self.isST[di][ii]) or self.isST[di][ii] > 0.5:  # 去掉ST股票
                     continue
 
                 if self.cap[di][ii] < 1e-5:  # min cap > 0
@@ -62,7 +61,7 @@ class DataManagerUniverse(DataManagerBase):
                         num += 1
                         total += self.vwap[di - i][ii] * self.volume[di - i][ii]
                 if num < 1e-5 or total < 1e-5:
-                    print("warning : there is error in computing universe of ticker : " + self.ticker_list[ii] + " at date: " + self.date_list[di])
+                    print("warning : there is error in computing universe of ticker : " + self.ii_list[ii] + " at date: " + self.di_list[di])
                     continue
                 liquidity[ii] = total / num
                 # print(liquidity[ii])

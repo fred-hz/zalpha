@@ -22,6 +22,8 @@ class DataManagerAdjPrice(DailyLoopDataPortalModule):
             mark = self.backdays
         for i in range(mark):
             for ii in range(self.ii_size):
+                #if self.accumAdjFactor[di][ii] == 0:
+                #    print("accumAdjFactor is 0 at date: " + self.context.di_list[di] + " ticker: " + self.context.ii_list[ii])
                 self.open[di - i][ii] = self.rawopen[di - i][ii] * self.accumAdjFactor[di - i][ii] / \
                                         self.accumAdjFactor[di][ii]
                 self.high[di - i][ii] = self.rawhigh[di - i][ii] * self.accumAdjFactor[di - i][ii] / \
@@ -46,6 +48,8 @@ class DataManagerAdjPrice(DailyLoopDataPortalModule):
             mark = self.backdays
         for i in range(mark):
             for ii in range(self.ii_size):
+                #if self.accumAdjFactor[di][ii] == 0:
+                #    print("accumAdjFactor is 0 at date: " + self.context.di_list[di] + " ticker: " + self.context.ii_list[ii])
                 self.open[di - i][ii] = self.rawopen[di - i][ii] * self.accumAdjFactor[di - i][ii] / \
                                         self.accumAdjFactor[di][ii]
                 self.high[di - i][ii] = self.rawhigh[di - i][ii] * self.accumAdjFactor[di - i][ii] / \
@@ -68,7 +72,7 @@ class DataManagerAdjPrice(DailyLoopDataPortalModule):
     def provide_data(self):
         self.di_size = len(self.context.di_list)
         self.ii_size = len(self.context.ii_list)
-        print(self.ii_size)
+
         self.open = np.ndarray((self.di_size, self.ii_size), dtype=float)
         self.high = np.ndarray((self.di_size, self.ii_size), dtype=float)
         self.low = np.ndarray((self.di_size, self.ii_size), dtype=float)
