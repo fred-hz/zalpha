@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 
 def quickSort(alist, amap):
@@ -67,8 +68,10 @@ def power(x, num):
     x[:] -= 0.5
     x[:] = np.sign(x[:]) * np.power(np.abs(x[:]),num)
 
+
 def powerNoRank(x, num):
     x[:] = np.sign(x[:]) * np.power(np.abs(x[:]), num)
+
 
 def truncate(x, maxPercent = 0.1, maxIter = 1):
     for i in range(maxIter):
@@ -81,3 +84,47 @@ def truncate(x, maxPercent = 0.1, maxIter = 1):
             return
         if i == maxIter - 1 and iUpdate > 0:
             print("*** warning ***: "+str(iUpdate)+" extreme value in last iter in truncate! ")
+
+
+def corr(x, y):
+    if not len(x) == len(y):
+        return np.nan
+    iNonNanNum = 0
+    sum_x = 0
+    sum_x2 = 0
+    sum_y = 0
+    sum_y2 = 0
+    sum_xy = 0
+
+    for i in range(len(x)):
+        if not np.isnan(x[i]) and not np.isnan(y[i]):
+            sum_x += x[i]
+            sum_x2 += x[i] * x[i]
+            sum_y += y[i]
+            sum_y2 += y[i] * y[i]
+            sum_xy += x[i] * y[i]
+            iNonNanNum += 1
+
+    if iNonNanNum < 3:
+        return np.nan
+
+    devX = abs(iNonNanNum * sum_x2 - sum_x * sum_x)
+    devY = abs(iNonNanNum * sum_y2 - sum_y * sum_y)
+
+    stdX = 0
+    if abs(devX) < 1e-4:
+        stdX = 0
+    else:
+        stdX = math.sqrt(devX)
+
+    stdY = 0
+    if abs(devY) < 1e-4:
+        stdY = 0
+    else:
+        stdY = math.sqrt(devY)
+
+    if abs(stdX) < 1e-4 or abs(stdY) < 1e-4:
+        return np.nan
+
+    ret = (iNonNanNum * sum_xy - sum_x * sum_y) / (stdX * stdY)
+    return ret
