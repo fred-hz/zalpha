@@ -319,7 +319,7 @@ class Engine(object):
             for mid in self.daily_data_sequence:
                 self.daily_data_portal_modules[mid].end_day(di)
             for case in self.case_list:
-                case.after_day(di)
+                case.end_day(di)
 
 
 if __name__ == '__main__':
