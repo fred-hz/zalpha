@@ -242,13 +242,43 @@ class Engine(object):
             dependency = self.data_dependency[mid]
             for data_name in dependency:
                 self.load_data(data_name)
+            self.globals.register_data(name, module.data[name])
             module.initialize()
-            module.build()
 
     @staticmethod
     def _set_add_list(_set, _list):
         for item in _list:
             _set.add(item)
+
+    def analyze_real_dependency(self):
+        sim = self.xml_structure['Sim']
+
+        for case_structure in sim:
+            case_id = case_structure['id']
+
+            universe_structure = case_structure['Universe']
+            universe_id = universe_structure['moduleId']
+            self.real_dependency.add(universe_id)
+
+            alpha_structure = case_structure['Alpha'].copy()
+            alpha_module = self.module_factory.create_module(mid=alpha_structure['moduleId'],
+                                                             context=None,
+                                                             params=None)
+            self._set_add_list(self.real_dependency, alpha_module.dependency)
+
+            operations_structure = case_structure['Operations'].copy()
+            for operation_info in operations_structure:
+                operation_module = self.module_factory.create_module(mid=operation_info['moduleId'],
+                                                                     context=None,
+                                                                     params=None)
+                self._set_add_list(self.real_dependency, operation_module.dependency)
+
+            performance_structure = case_structure['Performance'].copy()
+            performance_structure['alpha_id'] = case_id
+            performance_module = self.module_factory.create_module(mid=performance_structure['moduleId'],
+                                                                   context=None,
+                                                                   params=None)
+            self._set_add_list(self.real_dependency, performance_module.dependency)
 
     def generate_run_case(self, xml_structure):
         sim = xml_structure['Sim']
@@ -264,7 +294,7 @@ class Engine(object):
 
             case = RunCase(case_id=case_id)
 
-            context = self.globals
+            context = self.globals.shallow_copy()
 
             universe_structure = case_structure['Universe']
             universe_id = universe_structure['moduleId']
@@ -308,12 +338,13 @@ class Engine(object):
         print(sim_config)
         self.analyze_dependency(self.xml_structure)
         self.analyze_daily_data_sequence()
-        self.generate_run_case(self.xml_structure)
-
+        self.analyze_real_dependency()
         for data in self.real_dependency:
             self.load_data(data)
+        self.generate_run_case(self.xml_structure)
 
         for mid in self.daily_data_sequence:
+            self.daily_data_portal_modules[mid].build()
             self.daily_data_portal_modules[mid].initialize()
         for case in self.case_list:
             case.initialize()

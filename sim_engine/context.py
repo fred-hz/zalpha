@@ -26,8 +26,18 @@ class Context(object):
 
         self.is_valid = None
 
+    def shallow_copy(self):
+        result = Context()
+        for item in self.__dict__.keys():
+            if item == 'is_valid':
+                setattr(result, item, None)
+            else:
+                setattr(result, item, getattr(self, item))
+        return result
+
     def set_shape(self, ii_size):
         self.alpha = np.zeros(ii_size, dtype='float')
+        self.alpha.flat = np.nan
 
     def set_di_list(self, _list):
         self.di_list = _list
