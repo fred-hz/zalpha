@@ -27,7 +27,7 @@ class ModuleFactory(object):
 
         self.modules[mid] = params
 
-    def create_module(self, mid, context, params=None):
+    def create_module(self, mid, context, params):
         """
         Create a module object according to the class name of module mid.
         :param mid: Module id in config.xml

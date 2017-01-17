@@ -7,8 +7,8 @@ class Performance(DailyLoopModule):
 
     def initialize(self):
         self.alpha = self.context.alpha
-        self.long_capital = self.params['longCapital']
-        self.short_capital = self.params['shortCapital']
+        self.long_capital = self.params['longcapital']
+        self.short_capital = self.params['shortcapital']
         self.adj_cps = self.context.fetch_data('adj_close')
         self.adj_vwap = self.context.fetch_data('adj_vwap')
         self.start_di = self.context.date_idx(self.context.fetch_constant('startDate'))

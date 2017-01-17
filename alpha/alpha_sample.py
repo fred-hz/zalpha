@@ -3,7 +3,7 @@ from alpha.alpha_base import AlphaBase
 class AlphaSample(AlphaBase):
     def initialize(self):
         self.delay = int(self.params['delay'])
-        self.is_valid = self.context.fetch_dat('is_valid')
+        self.is_valid = self.context.is_valid
         self.cps = self.context.fetch_data('adj_close')
 
     def compute_day(self, di):
@@ -13,4 +13,3 @@ class AlphaSample(AlphaBase):
 
     def dependencies(self):
         self.register_dependency('adj_close')
-        self.register_dependency('is_valid')

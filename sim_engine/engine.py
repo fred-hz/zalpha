@@ -255,6 +255,13 @@ class Engine(object):
 
         for case_structure in sim:
             case_id = case_structure['id']
+
+            case_params = case_structure.copy()
+            case_params.pop('Universe')
+            case_params.pop('Alpha')
+            case_params.pop('Operations')
+            case_params.pop('Performance')
+
             case = RunCase(case_id=case_id)
 
             context = self.globals
@@ -264,23 +271,27 @@ class Engine(object):
             self.real_dependency.add(universe_id)
             context.is_valid = self.globals.data_container[universe_id]
 
-            alpha_structure = case_structure['Alpha']
+            alpha_structure = case_structure['Alpha'].copy()
+            alpha_structure.update(case_params)
             alpha_module = self.module_factory.create_module(mid=alpha_structure['moduleId'],
                                                              context=context,
                                                              params=alpha_structure)
             self._set_add_list(self.real_dependency, alpha_module.dependency)
             case.set_alpha_module(alpha_module)
 
-            operations_structure = case_structure['Operations']
+            operations_structure = case_structure['Operations'].copy()
             for operation_info in operations_structure:
+                params = operation_info.copy()
+                params.update(case_params)
                 operation_module = self.module_factory.create_module(mid=operation_info['moduleId'],
                                                                      context=context,
-                                                                     params=operation_info)
+                                                                     params=params)
                 self._set_add_list(self.real_dependency, operation_module.dependency)
                 case.add_operation_module(operation_module)
 
             performance_structure = case_structure['Performance'].copy()
             performance_structure['alpha_id'] = case_id
+            performance_structure.update(case_params)
             performance_module = self.module_factory.create_module(mid=performance_structure['moduleId'],
                                                                    context=context,
                                                                    params=performance_structure)
@@ -323,6 +334,6 @@ class Engine(object):
 
 
 if __name__ == '__main__':
-    engine = Engine('F:\\zalpha\\zalpha\\config.xml')
+    engine = Engine('/Users/Onlyrabbit/PycharmProjects/zalpha/config.xml')
     engine.parse_config()
     engine.sim()

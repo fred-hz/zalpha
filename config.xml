@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <zalpha>
 
-	<Paths DATAROOT="F:\zalpha\zalpha\data" RAWDATA="" CACHE="{DATAROOT}\cache"
+	<Paths DATAROOT="/Users/OnlyRabbit/PycharmProjects/data" RAWDATA="" CACHE="{DATAROOT}/cache"
 		   LOCAL=""/>
 
 	<Constants backdays="256" checkPointDays="5"  startDate="20100104" endDate="20141231"/>
@@ -11,11 +11,11 @@
         <Module id="envStandard" class="environment.env_standard.EnvStandard" dataPath="{DATAROOT}" cachePath="{CACHE}" startDate="20100104" endDate="20141231"/>
 
         <!-- Universe -->
-        <Module id="TOP500" class="data_manager.dm_universe.DataManagerUniverse" cachePath= "{CACHE}\universe\TOP500" dataPath=""
+        <Module id="TOP500" class="data_manager.dm_universe.DataManagerUniverse" cachePath= "{CACHE}/universe/TOP500" dataPath=""
                 universe="500" windowDays="63" minPrice="1." maxPrice="1000." minAmount="0." minCap="0." minLive="40" startDate="20070104" endDate="20141231"/>
 
 		<!-- Data Managers -->
-        <Module id="basedata" class="data_manager.dm_basedata.DataManagerBaseData" cachePath="{CACHE}\basedata" dataPath="{DATAROOT}\raw_stock_daily_data" sectorPath="{DATAROOT}\raw_sector_daily_data" startDate="20060104" endDate="20141231"/>
+        <Module id="basedata" class="data_manager.dm_basedata.DataManagerBaseData" cachePath="{CACHE}/basedata" dataPath="{DATAROOT}\raw_stock_daily_data" sectorPath="{DATAROOT}/raw_sector_daily_data" startDate="20060104" endDate="20141231"/>
         <!-- <Module id="wind.financeindex" class="data_manager.dm_windfinance.DataManagerWindFinance" cachePath="{CACHE}/wind/bin" dataPath="" startDate="" endDate=""/> -->
         <Module id="adjPrice" class="data_manager.dm_adjprice.DataManagerAdjPrice" startDate="20100104" endDate="20141231"/>
 
