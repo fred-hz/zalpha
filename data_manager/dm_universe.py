@@ -26,7 +26,7 @@ class DataManagerUniverse(DataManagerBase):
             liquidity = {}
             di -= 1  # 用之前的值去决定今天的universe
             for ii in range(len(self.ii_list)):
-                if self.isST[di][ii] > 0.5:  # 去掉ST股票
+                if np.isnan(self.isST[di][ii]) or self.isST[di][ii] > 0.5:  # 去掉ST股票
                     continue
 
                 if self.cap[di][ii] < 1e-5:  # min cap > 0

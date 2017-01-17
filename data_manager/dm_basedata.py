@@ -19,27 +19,44 @@ class DataManagerBaseData(DataManagerBase):
         ii_size = len(self.context.ii_list)
 
         self.isOpen = np.ndarray((di_size, ii_size), dtype=float)
+        self.isOpen.flat = np.nan
         self.isST = np.ndarray((di_size, ii_size), dtype=float)
+        self.isST.flat = np.nan
         self.open = np.ndarray((di_size, ii_size), dtype=float)
+        self.open.flat = np.nan
         self.high = np.ndarray((di_size, ii_size), dtype=float)
+        self.high.flat = np.nan
         self.low = np.ndarray((di_size, ii_size), dtype=float)
+        self.low.flat = np.nan
         self.close = np.ndarray((di_size, ii_size), dtype=float)
+        self.close.flat = np.nan
         self.volume = np.ndarray((di_size, ii_size), dtype=float)
+        self.volume.flat = np.nan
         self.amount = np.ndarray((di_size, ii_size), dtype=float)
+        self.amount.flat = np.nan
         self.turnover = np.ndarray((di_size, ii_size), dtype=float)
+        self.turnover.flat = np.nan
         self.cap = np.ndarray((di_size, ii_size), dtype=float)  # 流通市值
+        self.cap.flat = np.nan
         self.vwap = np.ndarray((di_size, ii_size), dtype=float)
+        self.vwap.flat = np.nan
         self.accumAdjFactor = np.ndarray((di_size, ii_size), dtype=float)
+        self.accumAdjFactor.flat = np.nan
         self.sharesout = np.ndarray((di_size, ii_size), dtype=float)  # 流通股数
+        self.sharesout.flat = np.nan
         self.ret = np.ndarray((di_size, ii_size), dtype=float)
+        self.ret.flat = np.nan
 
         self.sector = np.ndarray((di_size, ii_size), dtype=float)
+        self.sector.flat = np.nan
         self.sectorIdx = []
         self.sectorName = []
         self.industry = np.ndarray((di_size, ii_size), dtype=float)
+        self.industry.flat = np.nan
         self.industryIdx = []
         self.industryName = []
         self.subindustry = np.ndarray((di_size, ii_size), dtype=float)
+        self.subindustry.flat = np.nan
         self.subindustryIdx = []
         self.subindustryName = []
 
