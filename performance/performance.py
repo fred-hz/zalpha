@@ -24,8 +24,6 @@ class Performance(DailyLoopModule):
         self.r2sum = 0
         self.alphaId = self.params['alpha_id']
 
-        self.alpha = self.context.alpha
-
     def start_day(self, di):
         pass
 
@@ -37,9 +35,9 @@ class Performance(DailyLoopModule):
             raise Exception('date error: beyond simulation date range!!!')
 
         self.count += 1
-        long_num = np.sum(self.alpha[di] > 0)
+        long_num = np.sum(self.alpha > 0)
         long_sum = np.sum(self.alpha[self.alpha > 0])
-        short_num = np.sum(self.alpha[di] < 0)
+        short_num = np.sum(self.alpha < 0)
         short_sum = np.sum(self.alpha[self.alpha < 0])
         if long_num == 0:
             raise Exception('Warning: no positive alpha value, cannot allocate long capital!!!')
@@ -49,9 +47,8 @@ class Performance(DailyLoopModule):
             raise Exception('Warning: long alpha value is too small!!!')
         if short_num > 0 and abs(short_sum) < 1e-5:
             raise Exception('Warning: short alpha value is too small!!!')
-
-        self.history_position[di][self.alpha > 0] = self.long_capital * self.alpha[self.alpha > 0] / long_sum
-        self.history_position[di][self.alpha < 0] = - self.short_capital * self.alpha[self.alpha < 0] / short_sum
+        self.history_position[di][self.alpha > 0] = float(self.long_capital) * self.alpha[self.alpha > 0] / long_sum
+        self.history_position[di][self.alpha < 0] = - float(self.short_capital) * self.alpha[self.alpha < 0] / short_sum
 
         shares = np.zeros(self.ii_size)
         old_shares = np.zeros(self.ii_size)
@@ -98,7 +95,7 @@ class Performance(DailyLoopModule):
         IR = self.rmean / math.sqrt(self.r2sum / self.count - pow(self.rmean, 2))
         date = self.context.di_list[di]
         print("%81s X %7s %10s %15s %25s %7s %7s %7s %7s" % ("LONG", "SHORT", "SHARES", "PNL", "CUMPNL", "TVR", "RET", "DD", "IR"))
-        print("%8s %30s %15d X %15d %7d X %7d %10d %15d %25d %7.3f %7.3f %7.3f %7.3f" % (date, self.alphaId, int(l_capital), -int(s_capital), int(long_num), int(short_num), int(total_shares), int(pnl), int(self.cumpnl), self.cumtvr / self.cumcapital, self.cumpnl / self.cumcapital, min(0, self.Vmin) ,IR))
+        print("%8s %30s %15d X %15d %7d X %7d %10d %15d %25d %7.3f %7.3f %7.3f %7.3f" % (date, self.alphaId, int(l_capital), -int(s_capital), int(long_num), int(short_num), int(total_shares), int(pnl), int(self.cumpnl), self.cumtvr / self.cumcapital, self.cumpnl / self.cumcapital , min(0, self.Vmin) ,IR))
         with open('F:\zalpha\zalpha\pnl\\' + self.alphaId + '.csv', 'a') as output:
             output.write("%8s %15f %15f %15f %15f\n" % (date, pnl, tvr, l_capital, s_capital))
 

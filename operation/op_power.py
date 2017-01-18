@@ -1,8 +1,9 @@
 from operation.operation_base import OperationBase
 import util
+import numpy as np
+
 
 class OperationPower(OperationBase):
-
     def initialize(self):
         self.exp = float(self.params['exp'])
         if 'dorank' not in self.params:

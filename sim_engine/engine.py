@@ -8,7 +8,7 @@ from pipeline.module import (
 from sim_engine.context import Context
 from sim_engine.run_case import RunCase
 import re
-import collections
+import warnings
 
 # Map between variable name in Engine and module tag name in config.xml
 # Tag name in config.xml : Variable name in Engine
@@ -20,6 +20,7 @@ import collections
 #     'Operation': 'Operation',
 #     'Performance': 'Performance'
 # }
+
 
 class Engine(object):
     def __init__(self, config_path):
@@ -331,40 +332,43 @@ class Engine(object):
             self.case_list.append(case)
 
     def sim(self):
-        print(self.xml_structure)
-        sim_config = self.xml_structure['Sim']
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
 
-        self.load_environment()
-        print(sim_config)
-        self.analyze_dependency(self.xml_structure)
-        self.analyze_daily_data_sequence()
-        self.analyze_real_dependency()
-        for data in self.real_dependency:
-            self.load_data(data)
-        self.generate_run_case(self.xml_structure)
+            print(self.xml_structure)
+            sim_config = self.xml_structure['Sim']
 
-        for mid in self.daily_data_sequence:
-            self.daily_data_portal_modules[mid].build()
-            self.daily_data_portal_modules[mid].initialize()
-        for case in self.case_list:
-            case.initialize()
-
-        start_di = self.globals.start_di
-        end_di = self.globals.end_di
-
-        for di in range(start_di, end_di+1):
-            for mid in self.daily_data_sequence:
-                self.daily_data_portal_modules[mid].start_day(di)
-            for case in self.case_list:
-                case.start_day(di)
+            self.load_environment()
+            print(sim_config)
+            self.analyze_dependency(self.xml_structure)
+            self.analyze_daily_data_sequence()
+            self.analyze_real_dependency()
+            for data in self.real_dependency:
+                self.load_data(data)
+            self.generate_run_case(self.xml_structure)
 
             for mid in self.daily_data_sequence:
-                self.daily_data_portal_modules[mid].end_day(di)
+                self.daily_data_portal_modules[mid].build()
+                self.daily_data_portal_modules[mid].initialize()
             for case in self.case_list:
-                case.end_day(di)
+                case.initialize()
+
+            start_di = self.globals.start_di
+            end_di = self.globals.end_di
+
+            for di in range(start_di, end_di+1):
+                for mid in self.daily_data_sequence:
+                    self.daily_data_portal_modules[mid].start_day(di)
+                for case in self.case_list:
+                    case.start_day(di)
+
+                for mid in self.daily_data_sequence:
+                    self.daily_data_portal_modules[mid].end_day(di)
+                for case in self.case_list:
+                    case.end_day(di)
 
 
 if __name__ == '__main__':
-    engine = Engine('/Users/Onlyrabbit/PycharmProjects/zalpha/config.xml')
+    engine = Engine('F:\zalpha\zalpha\config.xml')
     engine.parse_config()
     engine.sim()

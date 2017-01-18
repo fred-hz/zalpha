@@ -1,22 +1,22 @@
 from operation.operation_base import OperationBase
 import numpy as np
 
-class OperationDecay(OperationBase):
 
+class OperationDecay(OperationBase):
     def initialize(self):
         self.days = float(self.params['days'])
         if 'dense' not in self.params:
             self.dense = True
         else:
             self.dense = ('True' == self.params['dense'])
-        self.valid = self.context.is_valid  # need to revise
-        Instruments_size = len(self.context.ii_list)
-        self.hist = np.zeros((self.days, Instruments_size))
+        self.is_valid = self.context.is_valid  # need to revise
+        self.ii_size = len(self.context.ii_list)
+        self.hist = np.zeros((self.days, self.ii_size))
         self.hist.flat = np.nan
-        self.num = np.zeros(Instruments_size, dtype=np.int)
-        self.sum = np.zeros(Instruments_size)
+        self.num = np.zeros(self.ii_size, dtype=int)
+        self.sum = np.zeros(self.ii_size)
         self.sum.flat = np.nan
-        self.diff = np.zeros(Instruments_size)
+        self.diff = np.zeros(self.ii_size)
         self.diff.flat = np.nan
 
     def compute_day(self, di, alpha):
@@ -37,7 +37,7 @@ class OperationDecay(OperationBase):
 
         tmp_nan = np.isnan(self.hist[0])
         if not self.dense:
-            tmp = np.where(self.num > 0 & self.valid[di] == 1 & np.isnan(self.hist[0]))
+            tmp = np.where(self.num > 0 & self.is_valid[di] == 1 & np.isnan(self.hist[0]))
             self.num[tmp] += 1
             self.hist[0][tmp] = 0
         else:

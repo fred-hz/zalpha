@@ -1,4 +1,6 @@
 from alpha.alpha_base import AlphaBase
+import numpy as np
+
 
 class AlphaSample(AlphaBase):
     def initialize(self):
