@@ -1,8 +1,9 @@
 from operation.operation_base import OperationBase
 import util
+import numpy as np
+
 
 class OperationTruncate(OperationBase):
-
     def initialize(self):
         self.maxPercent = float(self.params['maxPercent'])
         if 'maxIter' not in self.params:

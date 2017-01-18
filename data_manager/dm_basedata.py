@@ -109,7 +109,7 @@ class DataManagerBaseData(DataManagerBase):
                         self.ret[di][ii] = float(items[10]) / float(items[5]) - 1
                     else:
                         print("warning : there is no return price of ticker : " + ticker + " at date: " + date)
-                        self.ret[di][ii] = np.nan
+
                     if not items[7] == '':
                         if float(items[7]) < 1e-5:
                             print(
@@ -117,7 +117,7 @@ class DataManagerBaseData(DataManagerBase):
                         self.open[di][ii] = float(items[7])
                     else:
                         print("warning : there is no open price of ticker : " + ticker + " at date: " + date)
-                        self.open[di][ii] = np.nan
+
                     if not items[8] == '':
                         if float(items[8]) < 1e-5:
                             print(
@@ -125,7 +125,7 @@ class DataManagerBaseData(DataManagerBase):
                         self.high[di][ii] = float(items[8])
                     else:
                         print("warning : there is no high price of ticker : " + ticker + " at date: " + date)
-                        self.high[di][ii] = np.nan
+
                     if not items[9] == '':
                         if float(items[9]) < 1e-5:
                             print(
@@ -133,7 +133,7 @@ class DataManagerBaseData(DataManagerBase):
                         self.low[di][ii] = float(items[9])
                     else:
                         print("warning : there is no low price of ticker : " + ticker + " at date: " + date)
-                        self.low[di][ii] = np.nan
+
                     if not items[10] == '':
                         if float(items[10]) < 1e-5:
                             print(
@@ -141,7 +141,7 @@ class DataManagerBaseData(DataManagerBase):
                         self.close[di][ii] = float(items[10])
                     else:
                         print("warning : there is no close price of ticker : " + ticker + " at date: " + date)
-                        self.close[di][ii] = np.nan
+
                     if not items[11] == '':
                         if float(items[11]) < 1e-5:
                             print(
@@ -149,7 +149,7 @@ class DataManagerBaseData(DataManagerBase):
                         self.volume[di][ii] = float(items[11])
                     else:
                         print("warning : there is no volume price of ticker : " + ticker + " at date: " + date)
-                        self.volume[di][ii] = np.nan
+
                     if not items[12] == '':
                         if float(items[12]) < 1e-5:
                             print(
@@ -157,15 +157,13 @@ class DataManagerBaseData(DataManagerBase):
                         self.vwap[di][ii] = float(items[12]) / self.volume[di][ii]
                     else:
                         print("warning : there is no vwap price of ticker : " + ticker + " at date: " + date)
-                        self.vwap[di][ii] = np.nan
+
                     if not items[13] == '':
                         if float(items[13]) < 1e-5:
                             print(
                                 "warning : there is abnormal value : amount of ticker : " + ticker + " at date: " + date)
                         self.amount[di][ii] = float(items[13])
-                    else:
-                        # print("warning : there is no amount price of ticker : " + ticker + " at date: " + date)
-                        self.amount[di][ii] = np.nan
+
                     if not items[16] == '':
                         if float(items[16]) < 1e-5:
                             print(
@@ -173,21 +171,9 @@ class DataManagerBaseData(DataManagerBase):
                         self.cap[di][ii] = float(items[16])
                     else:
                         print("warning : there is no cap price of ticker : " + ticker + " at date: " + date)
-                        self.cap[di][ii] = np.nan
+
                     self.sharesout[di][ii] = self.cap[di][ii] / self.close[di][ii]
                     self.turnover[di][ii] = self.volume[di][ii] / self.sharesout[di][ii]
-                else:
-                    self.open[di][ii] = np.nan
-                    self.high[di][ii] = np.nan
-                    self.low[di][ii] = np.nan
-                    self.close[di][ii] = np.nan
-                    self.volume[di][ii] = np.nan
-                    self.vwap[di][ii] = np.nan
-                    self.amount[di][ii] = np.nan
-                    self.turnover[di][ii] = np.nan
-                    self.cap[di][ii] = np.nan
-                    self.sharesout[di][ii] = np.nan
-                    self.ret[di][ii] = np.nan
 
                 if not items[2] == '':
                     if 'st' in items[2] or 'ST' in items[2]:
@@ -196,14 +182,13 @@ class DataManagerBaseData(DataManagerBase):
                         self.isST[di][ii] = 0
                 else:
                     print("warning : there is no company name data of ticker : " + ticker + " at date: " + date)
-                    self.isST[di][ii] = np.nan
 
                 if not items[15] == '':
                     self.accumAdjFactor[di][ii] = float(items[15])
                 else:
                     print(
                         "warning : there is no accumulated adjust factor data of ticker : " + ticker + " at date: " + date)
-                    self.accumAdjFactor[di][ii] = np.nan
+
 
         try:
             with open(self.sector_path + '\\' + date + '.csv') as fp:
