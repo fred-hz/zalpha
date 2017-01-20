@@ -21,19 +21,12 @@ class DataManagerAdjPrice(DailyLoopDataPortalModule):
         else:
             mark = self.backdays
         for i in range(mark):
-            for ii in range(self.ii_size):
-                #if self.accumAdjFactor[di][ii] == 0:
-                #    print("accumAdjFactor is 0 at date: " + self.context.di_list[di] + " ticker: " + self.context.ii_list[ii])
-                self.open[di - i][ii] = self.rawopen[di - i][ii] * self.accumAdjFactor[di - i][ii] / \
-                                        self.accumAdjFactor[di][ii]
-                self.high[di - i][ii] = self.rawhigh[di - i][ii] * self.accumAdjFactor[di - i][ii] / \
-                                        self.accumAdjFactor[di][ii]
-                self.low[di - i][ii] = self.rawlow[di - i][ii] * self.accumAdjFactor[di - i][ii] / \
-                                       self.accumAdjFactor[di][ii]
-                self.close[di - i][ii] = self.rawclose[di - i][ii] * self.accumAdjFactor[di - i][ii] / \
-                                         self.accumAdjFactor[di][ii]
-                self.vwap[di - i][ii] = self.rawvwap[di - i][ii] * self.accumAdjFactor[di - i][ii] / \
-                                        self.accumAdjFactor[di][ii]
+            adjfactor = self.accumAdjFactor[di - i] / self.accumAdjFactor[di]
+            self.open[di - i] = self.open[di - i] * adjfactor
+            self.high[di - i] = self.high[di - i] * adjfactor
+            self.low[di - i] = self.low[di - i] * adjfactor
+            self.close[di - i] = self.close[di - i] * adjfactor
+            self.vwap[di - i] = self.vwap[di - i] * adjfactor
 
     def start_day(self, di):
         pass
@@ -46,20 +39,21 @@ class DataManagerAdjPrice(DailyLoopDataPortalModule):
             mark = di + 1
         else:
             mark = self.backdays
-        for i in range(mark):
-            for ii in range(self.ii_size):
-                #if self.accumAdjFactor[di][ii] == 0:
-                #    print("accumAdjFactor is 0 at date: " + self.context.di_list[di] + " ticker: " + self.context.ii_list[ii])
-                self.open[di - i][ii] = self.rawopen[di - i][ii] * self.accumAdjFactor[di - i][ii] / \
-                                        self.accumAdjFactor[di][ii]
-                self.high[di - i][ii] = self.rawhigh[di - i][ii] * self.accumAdjFactor[di - i][ii] / \
-                                        self.accumAdjFactor[di][ii]
-                self.low[di - i][ii] = self.rawlow[di - i][ii] * self.accumAdjFactor[di - i][ii] / \
-                                       self.accumAdjFactor[di][ii]
-                self.close[di - i][ii] = self.rawclose[di - i][ii] * self.accumAdjFactor[di - i][ii] / \
-                                         self.accumAdjFactor[di][ii]
-                self.vwap[di - i][ii] = self.rawvwap[di - i][ii] * self.accumAdjFactor[di - i][ii] / \
-                                        self.accumAdjFactor[di][ii]
+
+        self.open[di][:] = self.rawopen[di][:]
+        self.high[di][:] = self.rawhigh[di][:]
+        self.low[di][:] = self.rawlow[di][:]
+        self.close[di][:] = self.rawclose[di][:]
+        self.vwap[di][:] = self.rawvwap[di][:]
+
+        adjfactor = self.accumAdjFactor[di - 1] / self.accumAdjFactor[di]
+        tmp =  abs(1 - adjfactor) > 1e-4
+        for i in range(1, mark):
+            self.open[di - i][tmp] = self.open[di - i][tmp] * adjfactor[tmp]
+            self.high[di - i][tmp] = self.high[di - i][tmp] * adjfactor[tmp]
+            self.low[di - i][tmp] = self.low[di - i][tmp] * adjfactor[tmp]
+            self.close[di - i][tmp] = self.close[di - i][tmp] * adjfactor[tmp]
+            self.vwap[di - i][tmp] = self.vwap[di - i][tmp] * adjfactor[tmp]
 
     def dependencies(self):
         self.register_dependency('open')

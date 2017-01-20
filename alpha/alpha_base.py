@@ -19,6 +19,7 @@ class AlphaBase(DailyLoopModule):
         raise NotImplementedError
 
     def start_day(self, di):
+        self.alpha.fill(np.nan)
         self.compute_day(di)
 
     def end_day(self, di):
