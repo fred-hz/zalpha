@@ -45,7 +45,7 @@ class OperationDecay(OperationBase):
             self.sum[tmp_nan] = np.nan
             self.diff[tmp_nan] = np.nan
 
-        alpha = np.array(self.sum)  # copy array
+        alpha[:] = self.sum[:]
 
         if self.dense:
             denom = (2 * self.days - self.num) * (self.num + 1) / 2 / self.days

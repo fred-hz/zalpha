@@ -95,7 +95,7 @@ class Performance(DailyLoopModule):
         IR = self.rmean / math.sqrt(self.r2sum / self.count - pow(self.rmean, 2))
         date = self.context.di_list[di]
         print("%81s X %7s %10s %15s %25s %7s %7s %7s %7s" % ("LONG", "SHORT", "SHARES", "PNL", "CUMPNL", "TVR", "RET", "DD", "IR"))
-        print("%8s %30s %15d X %15d %7d X %7d %10d %15d %25d %7.3f %7.3f %7.3f %7.3f" % (date, self.alphaId, int(l_capital), -int(s_capital), int(long_num), int(short_num), int(total_shares), int(pnl), int(self.cumpnl), self.cumtvr / self.cumcapital, self.cumpnl / self.cumcapital , min(0, self.Vmin) ,IR))
+        print("%8s %30s %15d X %15d %7d X %7d %10d %15d %25d %7.3f %7.3f %7.3f %7.3f" % (date, self.alphaId, int(l_capital), -int(s_capital), int(long_num), int(short_num), int(total_shares), int(pnl), int(self.cumpnl), self.cumtvr / self.cumcapital, self.cumpnl / self.cumcapital * 100, min(0, self.Vmin) ,IR))
         with open('F:\zalpha\zalpha\pnl\\' + self.alphaId + '.csv', 'a') as output:
             output.write("%8s %15f %15f %15f %15f\n" % (date, pnl, tvr, l_capital, s_capital))
 
