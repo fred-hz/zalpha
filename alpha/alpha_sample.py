@@ -11,7 +11,7 @@ class AlphaSample(AlphaBase):
 
     def compute_day(self, di):
         for ii in range(len(self.context.ii_list)):
-            if self.is_valid[di][ii]:
+            if self.is_valid[di][ii] > 0.5:
                 self.alpha[ii] = self.cps[di - self.delay - 5][ii] - self.cps[di - self.delay][ii]
 
     def dependencies(self):
