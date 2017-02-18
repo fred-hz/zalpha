@@ -1,8 +1,5 @@
 import numpy as np
+from sklearn import linear_model
 
-x = np.array([1.,2.,3.])
-y = np.array([4.,5.,6.])
-x = np.array(y)
-print(x)
-y[0] = 1.
-print(x)
+x = np.array([(1., 1., 1., 1., 1.), (1., -2., 3., 2., -3.), (4., 1., -2., 3., 2.)])
+print(x[np.arange(2), 2])

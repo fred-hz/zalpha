@@ -10,9 +10,8 @@ class AlphaSample(AlphaBase):
         self.alpha = self.context.alpha
 
     def compute_day(self, di):
-        for ii in range(len(self.context.ii_list)):
-            if self.is_valid[di][ii] > 0.5:
-                self.alpha[ii] = self.cps[di - self.delay - 5][ii] - self.cps[di - self.delay][ii]
+        tmp = np.where(self.is_valid[di])[0]
+        self.alpha[tmp] = self.cps[di - self.delay - 5][tmp] - self.cps[di - self.delay][tmp]
 
     def dependencies(self):
         self.register_dependency('adj_close')
