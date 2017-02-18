@@ -51,15 +51,17 @@ class Engine(object):
         self.real_dependency = set()
         self.case_list = []
 
+        self.project = False
+
     def parse_config(self):
         tree = ET.parse(self.config_path)
         # Root node
         root = tree.getroot()
         self.xml_structure = self._parse_node(root)
 
-        engine._parse_path()
-        engine._parse_constant()
-        engine._parse_modules()
+        self._parse_path()
+        self._parse_constant()
+        self._parse_modules()
 
     def load_environment(self):
         """
@@ -73,7 +75,10 @@ class Engine(object):
         self.globals.di_list = environment.fetch_single_data('di_list')
         self.globals.ii_list = environment.fetch_single_data('ii_list')
         self.globals.start_di = self.globals.date_idx(self.globals.start_date)
-        self.globals.end_di = self.globals.date_idx(self.globals.end_date)
+        if self.project:
+            self.globals.end_di = len(self.globals.di_list)
+        else:
+            self.globals.end_di = self.globals.date_idx(self.globals.end_date)
         self.globals.set_shape(len(self.globals.ii_list))
 
     @staticmethod
@@ -138,6 +143,8 @@ class Engine(object):
             self.globals.register_constant(key, self.constants[key])
         self.globals.start_date = self.globals.fetch_constant('startDate')
         self.globals.end_date = self.globals.fetch_constant('endDate')
+        if self.globals.end_date == '0':
+            self.project = True
 
     def analyze_dependency(self, xml_structure):
         """

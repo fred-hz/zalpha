@@ -8,6 +8,7 @@ class Sim(object):
 
     def sim(self):
         self.engine.parse_config()
+        self.engine.sim()
 
     def project(self):
         pass
@@ -17,3 +18,4 @@ if __name__ == '__main__':
         sim = Sim(sys.argv[1])
     else:
         sim = Sim()
+    sim.sim()

@@ -22,11 +22,11 @@ class DataManagerAdjPrice(DailyLoopDataPortalModule):
             mark = self.backdays
         for i in range(mark):
             adjfactor = self.accumAdjFactor[di - i] / self.accumAdjFactor[di]
-            self.open[di - i] = self.open[di - i] * adjfactor
-            self.high[di - i] = self.high[di - i] * adjfactor
-            self.low[di - i] = self.low[di - i] * adjfactor
-            self.close[di - i] = self.close[di - i] * adjfactor
-            self.vwap[di - i] = self.vwap[di - i] * adjfactor
+            self.open[di - i] = self.rawopen[di - i] * adjfactor
+            self.high[di - i] = self.rawhigh[di - i] * adjfactor
+            self.low[di - i] = self.rawlow[di - i] * adjfactor
+            self.close[di - i] = self.rawclose[di - i] * adjfactor
+            self.vwap[di - i] = self.rawvwap[di - i] * adjfactor
 
     def start_day(self, di):
         pass
@@ -47,7 +47,7 @@ class DataManagerAdjPrice(DailyLoopDataPortalModule):
         self.vwap[di][:] = self.rawvwap[di][:]
 
         adjfactor = self.accumAdjFactor[di - 1] / self.accumAdjFactor[di]
-        tmp =  abs(1 - adjfactor) > 1e-4
+        tmp = abs(1 - adjfactor) > 1e-4
         for i in range(1, mark):
             self.open[di - i][tmp] = self.open[di - i][tmp] * adjfactor[tmp]
             self.high[di - i][tmp] = self.high[di - i][tmp] * adjfactor[tmp]
