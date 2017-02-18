@@ -1,6 +1,9 @@
 import numpy as np
 import math
+import sys
+from cutils.rank import rank_func
 
+sys.setrecursionlimit(5000)
 
 def quickSort(alist, amap):
     quickSortHelper(alist, amap, 0, len(alist) - 1)
@@ -40,7 +43,7 @@ def partition(alist, amap, first, last):
     amap[rightmark] = temp
     return rightmark
 
-
+'''
 def rank(x):
     n = np.sum(-np.isnan(x))
     if n <= 1:
@@ -57,14 +60,16 @@ def rank(x):
             j += 1
         j -= 1
         val = (i+j)/(n-1)/2
-        for k in range(i, j+1):
-            x[xmap[k]] = val
+        x[xmap[np.arange(i, j+1)]] = val
         i = j+1
     return n
+'''
 
+def rank(x):
+    rank_func(x)
 
 def power(x, num):
-    rank(x)
+    rank_func(x)
     x[:] -= 0.5
     x[:] = np.sign(x[:]) * np.power(np.abs(x[:]),num)
 
@@ -73,7 +78,7 @@ def powerNoRank(x, num):
     x[:] = np.sign(x[:]) * np.power(np.abs(x[:]), num)
 
 
-def truncate(x, maxPercent = 0.1, maxIter = 1):
+def truncate(x, maxPercent = 0.1, maxIter = 3):
     for i in range(maxIter):
         sum_p = np.sum(x[x > 0])
         sum_n = np.sum(x[x < 0])
@@ -87,44 +92,63 @@ def truncate(x, maxPercent = 0.1, maxIter = 1):
 
 
 def corr(x, y):
-    if not len(x) == len(y):
+    if not x.size == y.size:
         return np.nan
-    iNonNanNum = 0
-    sum_x = 0
-    sum_x2 = 0
-    sum_y = 0
-    sum_y2 = 0
-    sum_xy = 0
-
-    for i in range(len(x)):
-        if not np.isnan(x[i]) and not np.isnan(y[i]):
-            sum_x += x[i]
-            sum_x2 += x[i] * x[i]
-            sum_y += y[i]
-            sum_y2 += y[i] * y[i]
-            sum_xy += x[i] * y[i]
-            iNonNanNum += 1
-
+    tmp = np.where(-np.isnan(x) & -np.isnan(y))[0]
+    iNonNanNum = tmp.size
     if iNonNanNum < 3:
         return np.nan
-
+    sum_x = np.sum(x[tmp])
+    sum_x2 = np.sum(x[tmp] * x[tmp])
+    sum_y = np.sum(y[tmp])
+    sum_y2 = np.sum(y[tmp] * y[tmp])
+    sum_xy = np.sum(x[tmp] * y[tmp])
     devX = abs(iNonNanNum * sum_x2 - sum_x * sum_x)
     devY = abs(iNonNanNum * sum_y2 - sum_y * sum_y)
-
-    stdX = 0
     if abs(devX) < 1e-4:
         stdX = 0
     else:
         stdX = math.sqrt(devX)
-
-    stdY = 0
     if abs(devY) < 1e-4:
         stdY = 0
     else:
         stdY = math.sqrt(devY)
-
     if abs(stdX) < 1e-4 or abs(stdY) < 1e-4:
         return np.nan
+    return (iNonNanNum * sum_xy - sum_x * sum_y) / (stdX * stdY)
 
-    ret = (iNonNanNum * sum_xy - sum_x * sum_y) / (stdX * stdY)
-    return ret
+
+def EffiRatio(x):
+    if x.size <= 2 or abs(x[0] - x[-1]) <= 1e-5:
+        return np.nan
+    vola = 0
+    for i in range(x.size-1):
+        if np.isnan(x[i]) or np.isnan(x[i+1]):
+            continue
+        vola += abs(x[i] - x[i+1])
+    return vola/abs(x[0] - x[-1])
+
+
+def mabsdv(x):
+    m = np.nanmean(x)
+    if np.isnan(m):
+        return np.nan
+    return np.nansum(np.abs(x-m))/np.sum(-np.isnan(x))
+
+def wmean(x):
+    sum = 0.
+    cnt = 0.
+    for i in range(x.size):
+        if not np.isnan(x[i]):
+            sum += x[i] * (x.size - i)
+            cnt += x.size - i
+    if cnt > 0.5:
+        return sum/cnt
+    else:
+        return np.nan
+
+def downstddv(x):
+    if x.size < 4:
+        return np.nan
+    median = np.nanpercentile(x, 50)
+    return np.nanstd(x[x < median])
