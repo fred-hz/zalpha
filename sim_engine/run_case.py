@@ -1,4 +1,5 @@
 from sim_engine.module_factory import ModuleFactory
+import numpy as np
 class RunCase(object):
     def __init__(self, case_id):
         self.case_id = case_id

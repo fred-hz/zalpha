@@ -12,9 +12,9 @@ class Performance(DailyLoopModule):
         self.short_capital = self.params['shortcapital']
         self.adj_cps = self.context.fetch_data('adj_close')
         self.adj_vwap = self.context.fetch_data('adj_vwap')
-        self.start_di = self.context.date_idx(self.context.fetch_constant('startDate'))
-        self.end_di = self.context.date_idx(self.context.fetch_constant('endDate'))
-        self.di_size = len(self.context.di_list)
+        self.start_di = self.context.start_di
+        self.end_di = self.context.end_di
+        self.di_size = len(self.context.di_list) + 1
         self.ii_size = len(self.context.ii_list)
         self.shares = np.zeros((self.di_size, self.ii_size))
         self.position = np.zeros((self.di_size, self.ii_size))
@@ -26,6 +26,7 @@ class Performance(DailyLoopModule):
         self.r2_sum = 0
         self.alphaId = self.params['alpha_id']
         self.alphaMap = {}
+        # self.mode = self.params['mode']
 
     def start_day(self, di):
         pass
@@ -37,11 +38,12 @@ class Performance(DailyLoopModule):
         if di > self.end_di or di < self.start_di:
             raise Exception('date error: beyond simulation date range!!!')
 
-        date = self.context.di_list[di]
-        self.alphaMap[date] = self.alpha.copy()
-        if di == self.end_di:
-            with open('/Users/zhaozibo/Zalpha/zalpha/log/' + self.alphaId, 'wb') as output:
-                pickle.dump(self.alphaMap, output)
+        if not di == self.end_di:
+            date = self.context.di_list[di]
+            self.alphaMap[date] = self.alpha.copy()
+        # if di == self.end_di:
+        #     with open('/Users/zhaozibo/Zalpha/zalpha/log/' + self.alphaId, 'wb') as output:
+        #         pickle.dump(self.alphaMap, output)
 
         #self.count += 1
         #long_num = np.sum(self.alpha > 0)
@@ -69,6 +71,12 @@ class Performance(DailyLoopModule):
         tmp = np.where(-np.isnan(self.adj_cps[di - 1]))[0]
         #self.shares[di][tmp] = np.round(tposition[tmp] / self.adj_cps[di - 1][tmp])
         self.shares[di][tmp] = self.position[di][tmp] / self.adj_cps[di - 1][tmp]
+
+        if di == self.context.end_di:
+            with open('/Users/OnlyRabbit/PycharmProjects/zalpha/pnl/' + self.alphaId + '.csv', 'w') as output:
+                for ii in range(self.context.ii_size):
+                    output.write("%6s %15f\n" % (self.context.ii_list[ii], self.shares[di][ii]))
+            return
 
         total_shares = np.sum(np.absolute(self.shares[di]))
         long_num = np.sum(self.shares[di] > 0)
@@ -119,8 +127,8 @@ class Performance(DailyLoopModule):
         '''
         print("%81s X %7s %10s %15s %25s %7s %7s %7s %7s" % ("LONG", "SHORT", "SHARES", "PNL", "CUMPNL", "TVR", "RET", "DD", "IR"))
         print("%8s %30s %15d X %15d %7d X %7d %10d %15d %25d %7.3f %7.3f %7.3f %7.3f" % (date, self.alphaId, int(l_capital), -int(s_capital), int(long_num), int(short_num), int(total_shares), int(pnl), int(self.cumpnl), self.cumtvr / self.cumcapital, self.r_sum / self.count * TRADE_DAYS, min(0, self.Vmin) ,IR))
-        with open('/Users/zhaozibo/Zalpha/zalpha/pnl/' + self.alphaId + '.csv', 'a') as output:
-            output.write("%8s %15f %15f %15f %15f %15f\n" % (date, pnl, ret, tvr, l_capital, s_capital))
+        # with open('/Users/OnlyRabbit/PycharmProjects/zalpha/pnl/' + self.alphaId + '.csv', 'a') as output:
+        #     output.write("%8s %15f %15f %15f %15f %15f\n" % (date, pnl, ret, tvr, l_capital, s_capital))
 
     def dependencies(self):
         self.register_dependency('adj_close')

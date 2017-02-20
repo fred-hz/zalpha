@@ -31,11 +31,16 @@ class Context(object):
         for item in self.__dict__.keys():
             if item == 'is_valid':
                 setattr(result, item, None)
+            elif item == 'alpha':
+                _alpha = np.zeros(self.ii_size, dtype='float')
+                _alpha.flat = np.nan
+                setattr(result, item, _alpha)
             else:
                 setattr(result, item, getattr(self, item))
         return result
 
     def set_shape(self, ii_size):
+        self.ii_size = ii_size
         self.alpha = np.zeros(ii_size, dtype='float')
         self.alpha.flat = np.nan
 

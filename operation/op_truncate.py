@@ -1,5 +1,5 @@
 from operation.operation_base import OperationBase
-from __pycache__ import util
+import util
 import numpy as np
 
 

@@ -9,7 +9,7 @@ from sim_engine.context import Context
 from sim_engine.run_case import RunCase
 import re
 import warnings
-
+import numpy as np
 # Map between variable name in Engine and module tag name in config.xml
 # Tag name in config.xml : Variable name in Engine
 # module_type_name_map = {
@@ -368,9 +368,9 @@ class Engine(object):
                     self.daily_data_portal_modules[mid].start_day(di)
                 for case in self.case_list:
                     case.start_day(di)
-
-                for mid in self.daily_data_sequence:
-                    self.daily_data_portal_modules[mid].end_day(di)
+                if not self.project or di != end_di:
+                    for mid in self.daily_data_sequence:
+                        self.daily_data_portal_modules[mid].end_day(di)
                 for case in self.case_list:
                     case.end_day(di)
 

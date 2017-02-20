@@ -43,27 +43,27 @@ def partition(alist, amap, first, last):
     amap[rightmark] = temp
     return rightmark
 
-'''
-def rank(x):
-    n = np.sum(-np.isnan(x))
-    if n <= 1:
-        if n == 1:
-            x[-np.isnan(x)] = 0.5
-        return n
-    x1 = x[-np.isnan(x)]
-    xmap = np.where(-np.isnan(x))[0]
-    quickSort(x1, xmap)
-    i = 0
-    while i < n:
-        j = i+1
-        while j < n and (x1[j] == x1[i] or abs(x1[j]-x1[i])/(abs(x1[j])+abs(x1[i])) < 1e-9):
-            j += 1
-        j -= 1
-        val = (i+j)/(n-1)/2
-        x[xmap[np.arange(i, j+1)]] = val
-        i = j+1
-    return n
-'''
+
+# def rank(x):
+#     n = np.sum(-np.isnan(x))
+#     if n <= 1:
+#         if n == 1:
+#             x[-np.isnan(x)] = 0.5
+#         return n
+#     x1 = x[-np.isnan(x)]
+#     xmap = np.where(-np.isnan(x))[0]
+#     quickSort(x1, xmap)
+#     i = 0
+#     while i < n:
+#         j = i+1
+#         while j < n and (x1[j] == x1[i] or abs(x1[j]-x1[i])/(abs(x1[j])+abs(x1[i])) < 1e-9):
+#             j += 1
+#         j -= 1
+#         val = (i+j)/(n-1)/2
+#         x[xmap[np.arange(i, j+1)]] = val
+#         i = j+1
+#     return n
+
 
 def rank(x):
     rank_func(x)
